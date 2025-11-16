@@ -95,17 +95,27 @@ export function clearBlock(block) {
   }
 }
 
-/**
- * Convenience helper to build elements with class + text.
- *
- * @param {string} tag
- * @param {string} [className]
- * @param {string} [text]
- * @returns {HTMLElement}
- */
-export function el(tag, className, text) {
+
+export function el(tag, className, options) {
   const element = document.createElement(tag);
   if (className) element.className = className;
-  if (text) element.textContent = text;
+
+  if (typeof options === 'string') {
+    element.textContent = options;
+  } else if (options && typeof options === 'object') {
+    Object.entries(options).forEach(([key, value]) => {
+      if (key === 'textContent') {
+        element.textContent = value;
+      } else if (key === 'html') {
+        element.innerHTML = value;
+      } else if (key in element) {
+        // Properties like href, src, loading, etc.
+        element[key] = value;
+      } else {
+        element.setAttribute(key, value);
+      }
+    });
+  }
+
   return element;
 }

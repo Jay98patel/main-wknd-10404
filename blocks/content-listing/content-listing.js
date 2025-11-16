@@ -7,8 +7,8 @@ function parseConfig(block) {
   rows.forEach((row) => {
     const [keyCell, valueCell] = row.children;
     if (!keyCell || !valueCell) return;
-    const key = keyCell.textContent.trim().toLowerCase(); // normalize
-    const value = valueCell.textContent.trim();
+    const key = (keyCell.textContent || '').trim().toLowerCase();
+    const value = (valueCell.textContent || '').trim();
     if (!key) return;
     cfg[key] = value;
   });
@@ -17,8 +17,12 @@ function parseConfig(block) {
 }
 
 function mapFields(item, cfg) {
-  const get = (fieldKey, fallback) =>
-    item[cfg[fieldKey]] ?? item[fallback] ?? '';
+  const get = (fieldKey, fallback) => {
+    const fieldName = cfg[fieldKey];
+    if (fieldName && item[fieldName] != null) return item[fieldName];
+    if (fallback && item[fallback] != null) return item[fallback];
+    return '';
+  };
 
   return {
     title: get('title-field', 'title'),
@@ -33,13 +37,17 @@ function renderCards(items, cfg) {
   const root = el('div', 'content-listing__grid');
 
   items.forEach((raw) => {
-    const { title, summary, image, path, tag } = mapFields(raw, cfg);
+    const {
+      title, summary, image, path, tag,
+    } = mapFields(raw, cfg);
 
     const card = el('article', 'content-listing__card');
     const linkHref = path || '#';
 
     if (image) {
-      const imgLink = el('a', 'content-listing__image-link', { href: linkHref });
+      const imgLink = el('a', 'content-listing__image-link', {
+        href: linkHref,
+      });
       const img = el('img', 'content-listing__image', {
         src: image,
         alt: title || '',
@@ -52,22 +60,22 @@ function renderCards(items, cfg) {
     const body = el('div', 'content-listing__body');
 
     if (tag) {
-      const badge = el('span', 'content-listing__tag');
-      badge.textContent = tag;
+      const badge = el('span', 'content-listing__tag', tag);
       body.append(badge);
     }
 
     if (title) {
       const h3 = el('h3', 'content-listing__title');
-      const link = el('a', 'content-listing__title-link', { href: linkHref });
-      link.textContent = title;
+      const link = el('a', 'content-listing__title-link', {
+        href: linkHref,
+        textContent: title,
+      });
       h3.append(link);
       body.append(h3);
     }
 
     if (summary) {
-      const p = el('p', 'content-listing__summary');
-      p.textContent = summary;
+      const p = el('p', 'content-listing__summary', summary);
       body.append(p);
     }
 
@@ -81,17 +89,27 @@ function renderCards(items, cfg) {
 function sortAndFilter(data, cfg) {
   let items = Array.isArray(data) ? data.slice() : [];
 
+  // 1) Path prefix filter – e.g. /us/en/magazine/
   const pathPrefix = cfg['path-prefix'];
   if (pathPrefix) {
     items = items.filter((item) => (item.path || '').startsWith(pathPrefix));
   }
 
+  // 2) Single-field filter – e.g. section = magazine
   const filterField = cfg['filter-field'];
   const filterValue = cfg['filter-value'];
   if (filterField && filterValue) {
     items = items.filter((item) => `${item[filterField]}` === filterValue);
   }
 
+  // 3) Optional second filter – e.g. template = magazine-article
+  const filterField2 = cfg['filter-field-2'];
+  const filterValue2 = cfg['filter-value-2'];
+  if (filterField2 && filterValue2) {
+    items = items.filter((item) => `${item[filterField2]}` === filterValue2);
+  }
+
+  // 4) Sorting
   const sortBy = cfg['sort-by'];
   if (sortBy) {
     const direction = (cfg['sort-direction'] || 'asc').toLowerCase();
@@ -106,6 +124,7 @@ function sortAndFilter(data, cfg) {
     });
   }
 
+  // 5) Limit
   const limit = parseInt(cfg.limit, 10);
   if (!Number.isNaN(limit) && limit > 0) {
     items = items.slice(0, limit);
@@ -141,7 +160,7 @@ export default async function decorate(block) {
     clearBlock(block);
     block.append(container);
   } catch (e) {
-    // Fail gracefully, leave authoring view visible in preview
+    // Fail gracefully, leave authoring table visible in preview
     // eslint-disable-next-line no-console
     console.error('content-listing error', e);
   }

@@ -1,25 +1,6 @@
 import { el, getBlockRows, clearBlock } from '../../scripts/block-utils.js';
 
-/**
- * Parse config from a content-listing block.
- *
- * Authoring pattern in Docs:
- *
- *  Row 1: merged cell with text "content-listing"
- *  Row 2: header cells, e.g.:
- *         Source | Path Filter | Limit | Sort | Type | CTA Label | CTA URL
- *  Row 3: values row, e.g.:
- *         magazine | /us/en/magazine/* | 4 | newest | cards | All Articles | https://...
- *
- *  Optional extra rows below (2 columns) as key/value pairs:
- *         filter-field | category
- *         filter-value | surfing
- *         enable-filters | true
- *         json-path | /adventures-index.json
- *         title-field | title
- *         summary-field | teaser
- *         image-field | image
- */
+
 function parseConfig(block) {
   const rows = getBlockRows(block);
   const cfg = {};

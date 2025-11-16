@@ -1,205 +1,202 @@
+/* Make hero section full-bleed, no extra padding above it */
 .hero-container .hero-wrapper {
-  max-width: unset;
+  max-width: none;
   padding: 0;
 }
 
+/* Base hero block */
 .hero {
   position: relative;
-  padding: 40px 24px;
-  min-height: 300px;
+  margin: 0;
+  padding: 0;
+  min-height: 420px;
+  color: #fff;
+  overflow: hidden;
 }
 
-.hero h1 {
-  max-width: 1200px;
-  margin-left: auto;
-  margin-right: auto;
-  color: var(--background-color);
-}
+/* ----- Slider layout ----- */
 
-/* background image for simple hero: picture as direct child */
-.hero>picture {
-  position: absolute;
-  z-index: -1;
-  inset: 0;
-  object-fit: cover;
-  box-sizing: border-box;
-}
-
-.hero img {
-  object-fit: cover;
+.hero__slides {
+  position: relative;
   width: 100%;
   height: 100%;
 }
 
-/* ---------- Simple hero content (adventures hero, etc.) ---------- */
-
-.hero__inner {
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.hero__content {
-  max-width: 36rem;
-  color: var(--background-color);
-}
-
-.hero__eyebrow {
-  font-size: 0.8rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  margin: 0 0 0.5rem;
-}
-
-.hero__title {
-  margin: 0 0 0.75rem;
-  font-size: 2.4rem;
-  line-height: 1.1;
-}
-
-.hero__body {
-  margin: 0 0 1.5rem;
-  font-size: 1rem;
-  line-height: 1.6;
-}
-
-.hero__actions .button {
-  padding-inline: 1.75rem;
-  padding-block: 0.75rem;
-  border-radius: 999px;
-}
-
-/* ---------- Slider variant (home top hero) ---------- */
-
-.hero.hero--slider,
-.hero.slider {
-  padding: 0;
-  min-height: 0;
-}
-
-.hero.hero--slider .hero-slider__slides,
-.hero.slider .hero-slider__slides {
-  position: relative;
-  overflow: hidden;
-}
-
-.hero.hero--slider .hero-slider__slide,
-.hero.slider .hero-slider__slide {
-  position: relative;
-  min-height: 420px;
-  padding: 80px 24px;
+.hero__slide {
+  position: absolute;
+  inset: 0;
   opacity: 0;
-  transition: opacity 0.25s ease;
   pointer-events: none;
+  transition: opacity 0.5s ease-in-out;
 }
 
-.hero.hero--slider .hero-slider__slide.is-active,
-.hero.slider .hero-slider__slide.is-active {
+.hero__slide--active {
   opacity: 1;
   pointer-events: auto;
 }
 
-.hero.hero--slider .hero-slider__media picture,
-.hero.hero--slider .hero-slider__media img,
-.hero.slider .hero-slider__media picture,
-.hero.slider .hero-slider__media img {
+/* Background image */
+
+.hero__background picture,
+.hero__background img {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  z-index: -1;
 }
 
-.hero.hero--slider .hero-slider__content,
-.hero.slider .hero-slider__content {
+/* Darken bottom so text is readable */
+.hero__gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.10) 0%,
+    rgba(0, 0, 0, 0.65) 65%,
+    rgba(0, 0, 0, 0.85) 100%
+  );
+}
+
+/* Content wrapper centers panel similar to wknd.site */
+
+.hero__content-wrapper {
+  position: relative;
   max-width: 1200px;
   margin: 0 auto;
-  color: #fff;
+  padding: 140px 32px 80px;
+  display: flex;
+  align-items: flex-end;
+  height: 100%;
+  box-sizing: border-box;
 }
 
-.hero.hero--slider .hero-slider__tag,
-.hero.slider .hero-slider__tag {
-  font-size: 0.8rem;
-  letter-spacing: 0.12em;
+/* Panel with title/description/button */
+
+.hero__panel {
+  background: rgba(0, 0, 0, 0.85);
+  padding: 1.5rem 2.25rem;
+  max-width: 520px;
+}
+
+.hero__eyebrow {
+  font-size: 0.75rem;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
+  margin: 0 0 0.4rem;
+  opacity: 0.8;
+}
+
+.hero__tag {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
   margin: 0 0 0.5rem;
+  color: #ffd600;
 }
 
-.hero.hero--slider .hero-slider__title,
-.hero.slider .hero-slider__title {
-  margin: 0 0 0.75rem;
-  font-size: 2.6rem;
-  line-height: 1.1;
+.hero__title {
+  margin: 0 0 0.6rem;
+  font-size: 1.8rem;
+  line-height: 1.15;
 }
 
-.hero.hero--slider .hero-slider__subtitle,
-.hero.slider .hero-slider__subtitle {
-  max-width: 32rem;
-  margin: 0 0 1.5rem;
-  font-size: 1rem;
+.hero__subtitle {
+  margin: 0 0 1rem;
+  font-size: 0.95rem;
   line-height: 1.6;
 }
 
-.hero.hero--slider .hero-slider__actions .button,
-.hero.slider .hero-slider__actions .button {
-  padding-inline: 1.75rem;
-  padding-block: 0.75rem;
+/* CTA button (matching WKND yellow) */
+
+.hero__cta {
+  display: inline-block;
+  padding: 0.65rem 1.6rem;
   border-radius: 999px;
+  text-decoration: none;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  background: #ffd600;
+  color: #000;
 }
 
-.hero.hero--slider .hero-slider__nav,
-.hero.slider .hero-slider__nav {
+/* ----- Arrows & dots ----- */
+
+.hero__nav {
   position: absolute;
-  inset-inline: 24px;
-  bottom: 24px;
+  inset: 0;
+  max-width: 1200px;
+  margin: 0 auto;
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
   pointer-events: none;
 }
 
-.hero.hero--slider .hero-slider__arrow,
-.hero.slider .hero-slider__arrow {
-  pointer-events: auto;
+.hero__arrow {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
   border: none;
-  background: rgba(0, 0, 0, 0.45);
-  color: #fff;
-  width: 32px;
-  height: 32px;
-  border-radius: 999px;
-  cursor: pointer;
-}
-
-.hero.hero--slider .hero-slider__dots,
-.hero.slider .hero-slider__dots {
+  background: rgba(255, 255, 255, 0.9);
   display: flex;
-  gap: 0.4rem;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.3rem;
   pointer-events: auto;
-  margin: 0 auto;
 }
 
-.hero.hero--slider .hero-slider__dot,
-.hero.slider .hero-slider__dot {
-  width: 10px;
-  height: 10px;
+.hero__arrow:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.hero__dots {
+  position: absolute;
+  left: 50%;
+  bottom: 22px;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+}
+
+.hero__dot {
+  width: 8px;
+  height: 8px;
   border-radius: 999px;
-  border: 0;
+  border: none;
   background: rgba(255, 255, 255, 0.4);
   cursor: pointer;
 }
 
-.hero.hero--slider .hero-slider__dot.is-active,
-.hero.slider .hero-slider__dot.is-active {
+.hero__dot--active {
+  width: 18px;
   background: #ffd600;
 }
 
-@media (width >=900px) {
+/* ----- Responsive tweaks ----- */
+
+@media (max-width: 768px) {
   .hero {
-    padding: 40px 32px;
+    min-height: 360px;
   }
 
-  .hero.hero--slider .hero-slider__slide,
-  .hero.slider .hero-slider__slide {
-    padding-inline: 64px;
+  .hero__content-wrapper {
+    padding: 110px 16px 64px;
+  }
+
+  .hero__panel {
+    padding: 1rem 1.25rem;
+  }
+
+  .hero__title {
+    font-size: 1.4rem;
+  }
+
+  .hero__subtitle {
+    font-size: 0.9rem;
   }
 }

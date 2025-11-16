@@ -1,169 +1,228 @@
-// blocks/hero/hero.js
 import {
   getBlockRows,
   getCellText,
-  getLinkFromCell,
   clearBlock,
   el,
 } from '../../scripts/block-utils.js';
 
-function getDataRows(block) {
-  const rows = getBlockRows(block);
-  if (!rows.length) return [];
-
-  // Skip the column-label row if it looks like "Image | Title | Subtitle | ..."
-  const firstRow = rows[0];
-  const firstCell = getCellText(firstRow, 0).toLowerCase();
-  const secondCell = getCellText(firstRow, 1).toLowerCase();
-
-  const looksLikeHeader =
-    firstCell === 'image' &&
-    (secondCell === 'title' || secondCell === 'eyebrow' || secondCell === 'subtitle');
-
-  return looksLikeHeader ? rows.slice(1) : rows;
+/**
+ * Helper: get href from a table cell.
+ * Supports either an <a> tag or plain text URL.
+ */
+function extractHrefFromCell(cell) {
+  if (!cell) return '';
+  const link = cell.querySelector && cell.querySelector('a[href]');
+  if (link) return link.href;
+  return (cell.textContent || '').trim();
 }
 
-function buildSlide(row, isActive) {
+/**
+ * Simple hero (used on /us/en/adventures, etc.)
+ *
+ * Table columns (first data row):
+ *  0: Background image
+ *  1: Eyebrow (e.g. "Adventures")
+ *  2: Title
+ *  3: Subtitle / body
+ *  4: CTA label
+ *  5: CTA URL (link or plain text)
+ */
+function buildSimpleHero(block, rows) {
+  const [row] = rows;
+  if (!row) return;
+
   const cells = Array.from(row.children);
-
   const imageCell = cells[0] || null;
-  const titleText = getCellText(row, 1); // "WKND Adventures"
-  const subtitleText = getCellText(row, 2); // long copy
-  const ctaLabel = getCellText(row, 3);
-  const ctaCell = cells[4] || null;
-  const tagText = getCellText(row, 5); // "Featured", "Surfing", etc.
+  const eyebrow = getCellText(row, 1);
+  const title = getCellText(row, 2);
+  const body = getCellText(row, 3);
+  const ctaLabel = getCellText(row, 4);
+  const ctaHref = extractHrefFromCell(cells[5] || null);
 
-  let ctaHref = '';
-  if (ctaCell) {
-    const link = getLinkFromCell(ctaCell);
-    if (link && link.href) {
-      ctaHref = link.href;
-    } else {
-      ctaHref = (ctaCell.textContent || '').trim();
-    }
-  }
-
-  const slide = el('section', 'hero__slide');
-  if (isActive) {
-    slide.classList.add('hero__slide--active');
-  }
-  slide.setAttribute('role', 'group');
-
-  // Background media (picture fills slide)
-  if (imageCell) {
-    const picture = imageCell.querySelector('picture, img');
-    if (picture) {
-      slide.append(picture);
-    }
-  }
-
-  const inner = el('div', 'hero__inner');
+  const wrapper = el('div', 'hero__inner');
   const content = el('div', 'hero__content');
 
-  if (tagText) {
-    content.append(el('p', 'hero__eyebrow', tagText));
+  if (eyebrow) {
+    content.append(el('p', 'hero__eyebrow', eyebrow));
   }
 
-  if (titleText) {
-    content.append(el('h1', 'hero__title', titleText));
+  if (title) {
+    const h1 = el('h1', 'hero__title', title);
+    content.append(h1);
   }
 
-  if (subtitleText) {
-    content.append(el('p', 'hero__subtitle', subtitleText));
+  if (body) {
+    content.append(el('p', 'hero__body', body));
   }
 
   if (ctaLabel && ctaHref) {
     const actions = el('div', 'hero__actions');
-    const btn = el('a', 'button primary hero__cta', {
-      href: ctaHref,
-      text: ctaLabel,
-    });
+    const btn = el('a', 'button primary');
+    btn.href = ctaHref;
+    btn.textContent = ctaLabel;
     actions.append(btn);
     content.append(actions);
   }
 
-  inner.append(content);
-  slide.append(inner);
+  wrapper.append(content);
 
-  return slide;
+  // Background picture as direct child of .hero (for CSS)
+  let picture = null;
+  if (imageCell) {
+    picture = imageCell.querySelector('picture');
+    if (!picture && imageCell.firstElementChild) {
+      picture = imageCell.firstElementChild;
+    }
+  }
+
+  clearBlock(block);
+
+  if (picture) {
+    block.append(picture);
+  }
+  block.append(wrapper);
 }
 
-function wireSlider(heroEl) {
-  const slides = Array.from(heroEl.querySelectorAll('.hero__slide'));
-  const total = slides.length;
-  if (total <= 1) return; // no controls if only one slide
+/**
+ * Slider hero (used on /us/en/home with style "slider" / "hero--slider").
+ *
+ * Table columns for EACH slide row:
+ *  0: Background image
+ *  1: Title (e.g. "WKND Adventures")
+ *  2: Subtitle / body
+ *  3: CTA label (e.g. "View Trips")
+ *  4: CTA URL
+ *  5: Optional tag (e.g. "Featured")
+ */
+function buildSliderHero(block, rows) {
+  const slider = el('div', 'hero-slider');
+  const slidesWrap = el('div', 'hero-slider__slides');
+  const dotsWrap = el('div', 'hero-slider__dots');
+  const prevBtn = el('button', 'hero-slider__arrow hero-slider__arrow--prev', '‹');
+  const nextBtn = el('button', 'hero-slider__arrow hero-slider__arrow--next', '›');
+
+  prevBtn.type = 'button';
+  prevBtn.setAttribute('aria-label', 'Previous slide');
+  nextBtn.type = 'button';
+  nextBtn.setAttribute('aria-label', 'Next slide');
+
+  const slidesEls = [];
+  const dotsEls = [];
+
+  rows.forEach((row, index) => {
+    const cells = Array.from(row.children);
+
+    const imageCell = cells[0] || null;
+    const title = getCellText(row, 1);
+    const subtitle = getCellText(row, 2);
+    const ctaLabel = getCellText(row, 3);
+    const ctaHref = extractHrefFromCell(cells[4] || null);
+    const tag = getCellText(row, 5);
+
+    const slide = el('article', 'hero-slider__slide');
+    const media = el('div', 'hero-slider__media');
+    const content = el('div', 'hero-slider__content');
+
+    // Background image
+    if (imageCell) {
+      let picture = imageCell.querySelector('picture');
+      if (!picture && imageCell.firstElementChild) {
+        picture = imageCell.firstElementChild;
+      }
+      if (picture) {
+        media.append(picture);
+      }
+    }
+
+    if (tag) {
+      content.append(el('p', 'hero-slider__tag', tag));
+    }
+
+    if (title) {
+      content.append(el('h1', 'hero-slider__title', title));
+    }
+
+    if (subtitle) {
+      content.append(el('p', 'hero-slider__subtitle', subtitle));
+    }
+
+    if (ctaLabel && ctaHref) {
+      const actions = el('div', 'hero-slider__actions');
+      const btn = el('a', 'button primary');
+      btn.href = ctaHref;
+      btn.textContent = ctaLabel;
+      actions.append(btn);
+      content.append(actions);
+    }
+
+    slide.append(media, content);
+    slidesWrap.append(slide);
+    slidesEls.push(slide);
+
+    const dot = el('button', 'hero-slider__dot');
+    dot.type = 'button';
+    dot.setAttribute('aria-label', `Go to slide ${index + 1}`);
+    dotsWrap.append(dot);
+    dotsEls.push(dot);
+  });
+
+  const nav = el('div', 'hero-slider__nav');
+  nav.append(prevBtn, dotsWrap, nextBtn);
+
+  slider.append(slidesWrap, nav);
+
+  clearBlock(block);
+  block.append(slider);
 
   let current = 0;
 
-  const dotsWrapper = el('div', 'hero__dots');
-  const dots = slides.map((_, index) => {
-    const dot = el('button', 'hero__dot');
-    dot.type = 'button';
-    dot.setAttribute('aria-label', `Go to slide ${index + 1}`);
-    if (index === 0) {
-      dot.classList.add('hero__dot--active');
-    }
-    dotsWrapper.append(dot);
-    return dot;
-  });
+  const update = (index) => {
+    const count = slidesEls.length;
+    if (!count) return;
 
-  const prevBtn = el('button', 'hero__arrow hero__arrow--prev', {
-    type: 'button',
-    text: '‹',
-  });
+    let i = index;
+    if (i < 0) i = count - 1;
+    if (i >= count) i = 0;
+    current = i;
 
-  const nextBtn = el('button', 'hero__arrow hero__arrow--next', {
-    type: 'button',
-    text: '›',
-  });
-
-  const nav = el('div', 'hero__nav');
-  nav.append(prevBtn, nextBtn, dotsWrapper);
-  heroEl.append(nav);
-
-  const setActive = (index) => {
-    current = (index + total) % total;
-
-    slides.forEach((slide, i) => {
-      const isActive = i === current;
-      slide.classList.toggle('hero__slide--active', isActive);
-      slide.setAttribute('aria-hidden', isActive ? 'false' : 'true');
+    slidesEls.forEach((slide, idx) => {
+      slide.classList.toggle('is-active', idx === i);
     });
 
-    dots.forEach((dot, i) => {
-      dot.classList.toggle('hero__dot--active', i === current);
+    dotsEls.forEach((dot, idx) => {
+      const active = idx === i;
+      dot.classList.toggle('is-active', active);
+      if (active) {
+        dot.setAttribute('aria-current', 'true');
+      } else {
+        dot.removeAttribute('aria-current');
+      }
     });
   };
 
-  prevBtn.addEventListener('click', () => {
-    setActive(current - 1);
+  prevBtn.addEventListener('click', () => update(current - 1));
+  nextBtn.addEventListener('click', () => update(current + 1));
+  dotsEls.forEach((dot, idx) => {
+    dot.addEventListener('click', () => update(idx));
   });
 
-  nextBtn.addEventListener('click', () => {
-    setActive(current + 1);
-  });
-
-  dots.forEach((dot, index) => {
-    dot.addEventListener('click', () => setActive(index));
-  });
+  // Initial slide
+  update(0);
 }
 
+/**
+ * Entry point: decides between simple hero and slider variant.
+ */
 export default function decorate(block) {
-  const dataRows = getDataRows(block);
-  if (!dataRows.length) return;
+  const rows = getBlockRows(block);
+  if (!rows.length) return;
 
-  const hero = el('div', 'hero hero--slider');
-  const slidesWrapper = el('div', 'hero__slides');
+  const isSlider = block.classList.contains('hero--slider')
+    || block.classList.contains('slider');
 
-  dataRows.forEach((row, index) => {
-    const slide = buildSlide(row, index === 0);
-    slidesWrapper.append(slide);
-  });
-
-  hero.append(slidesWrapper);
-
-  clearBlock(block);
-  block.append(hero);
-
-  wireSlider(hero);
+  if (isSlider) {
+    buildSliderHero(block, rows);
+  } else {
+    buildSimpleHero(block, rows);
+  }
 }

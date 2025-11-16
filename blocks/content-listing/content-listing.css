@@ -1,4 +1,3 @@
-
 .content-listing {
   padding: 2rem 1.5rem;
 }
@@ -16,6 +15,10 @@
   border-radius: 0.75rem;
   overflow: hidden;
   box-shadow: 0 16px 30px rgba(0, 0, 0, 0.06);
+}
+
+.content-listing__image-link {
+  display: block;
 }
 
 .content-listing__image {
@@ -60,6 +63,24 @@
   font-size: 0.95rem;
   line-height: 1.5;
   color: rgba(0, 0, 0, 0.78);
+}
+
+/* Footer CTA underneath the grid ("All Articles", "All Trips") */
+.content-listing__footer {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.content-listing__cta {
+  display: inline-block;
+}
+
+/* rely on global .button / .button.primary styles for colors */
+.content-listing__cta.button {
+  padding-inline: 1.75rem;
+  padding-block: 0.65rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
 }
 
 @media (max-width: 600px) {

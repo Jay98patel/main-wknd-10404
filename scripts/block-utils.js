@@ -95,7 +95,21 @@ export function clearBlock(block) {
   }
 }
 
-
+/**
+ * Convenience helper to build elements.
+ *
+ * Usage:
+ *   el('div', 'class-name');                      // no text
+ *   el('p', 'class-name', 'Some text');          // textContent
+ *   el('a', 'link', { href: '/x', text: 'Go' }); // attributes/options
+ *
+ * @param {string} tag
+ * @param {string} [className]
+ * @param {string|Record<string, any>} [options]
+ *  - string  => textContent
+ *  - object  => attributes/properties (href, src, text, etc.)
+ * @returns {HTMLElement}
+ */
 export function el(tag, className, options) {
   const element = document.createElement(tag);
   if (className) element.className = className;
@@ -104,12 +118,14 @@ export function el(tag, className, options) {
     element.textContent = options;
   } else if (options && typeof options === 'object') {
     Object.entries(options).forEach(([key, value]) => {
-      if (key === 'textContent') {
+      if (value == null) return;
+
+      if (key === 'text' || key === 'textContent') {
         element.textContent = value;
-      } else if (key === 'html') {
+      } else if (key === 'html' || key === 'innerHTML') {
         element.innerHTML = value;
       } else if (key in element) {
-        // Properties like href, src, loading, etc.
+        // direct property if it exists (href, src, loading, etc.)
         element[key] = value;
       } else {
         element.setAttribute(key, value);

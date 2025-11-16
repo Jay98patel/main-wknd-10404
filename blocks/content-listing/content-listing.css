@@ -2,6 +2,50 @@
   padding: 2rem 1.5rem;
 }
 
+/* ---------- Filters (Adventures) ---------- */
+
+.content-listing__filters-host {
+  margin-bottom: 1.5rem;
+}
+
+.content-listing__filters {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+}
+
+.content-listing__filter-list {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.content-listing__filter {
+  border: none;
+  background: transparent;
+  padding: 0.4rem 0.9rem;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+  color: rgba(0, 0, 0, 0.7);
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+}
+
+.content-listing__filter--active {
+  color: #000;
+  font-weight: 600;
+  border-bottom-color: #ffd600;
+  /* WKND yellow-ish */
+  background: rgba(0, 0, 0, 0.02);
+}
+
+/* ---------- Cards grid ---------- */
+
+.content-listing__cards-host {
+  /* wrapper so we can re-render grid inside */
+}
+
 .content-listing__grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -15,6 +59,12 @@
   border-radius: 0.75rem;
   overflow: hidden;
   box-shadow: 0 16px 30px rgba(0, 0, 0, 0.06);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.content-listing__card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
 }
 
 .content-listing__image-link {
@@ -52,6 +102,7 @@
 
 .content-listing__title-link {
   text-decoration: none;
+  color: inherit;
 }
 
 .content-listing__title-link:hover {
@@ -65,26 +116,12 @@
   color: rgba(0, 0, 0, 0.78);
 }
 
-/* Footer CTA underneath the grid ("All Articles", "All Trips") */
-.content-listing__footer {
-  margin-top: 2rem;
-  text-align: center;
-}
-
-.content-listing__cta {
-  display: inline-block;
-}
-
-/* rely on global .button / .button.primary styles for colors */
-.content-listing__cta.button {
-  padding-inline: 1.75rem;
-  padding-block: 0.65rem;
-  border-radius: 999px;
-  font-size: 0.85rem;
-}
-
 @media (max-width: 600px) {
   .content-listing {
     padding-inline: 1rem;
+  }
+
+  .content-listing__image {
+    height: 200px;
   }
 }

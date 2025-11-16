@@ -11,21 +11,14 @@ import { el, getBlockRows, clearBlock } from '../../scripts/block-utils.js';
  */
 function parseConfig(block) {
   const rows = getBlockRows(block);
-  if (rows.length < 2) return null;
-
-  const headerCells = Array.from(rows[0].children);
-  const valueCells = Array.from(rows[1].children || []);
-
   const cfg = {};
 
-  headerCells.forEach((th, idx) => {
-    const keyRaw = (th.textContent || '').trim();
-    if (!keyRaw) return;
-
-    const key = keyRaw.toLowerCase().replace(/\s+/g, '-'); // "Path Filter" -> "path-filter"
-    const valueCell = valueCells[idx];
-    const value = valueCell ? (valueCell.textContent || '').trim() : '';
-
+  rows.forEach((row) => {
+    const [keyCell, valueCell] = row.children;
+    if (!keyCell || !valueCell) return;
+    const key = (keyCell.textContent || '').trim().toLowerCase();
+    const value = (valueCell.textContent || '').trim();
+    if (!key) return;
     cfg[key] = value;
   });
 
@@ -48,23 +41,20 @@ function normalizePathFilter(filter) {
  * Map index item fields to card fields, with fallbacks.
  */
 function mapFields(item, cfg) {
-  const titleField = cfg['title-field'] || 'title';
-  const summaryField = cfg['summary-field'] || 'description';
-  const imageField = cfg['image-field'] || 'image';
-  const pathField = cfg['path-field'] || 'path';
-  const tagField = cfg['tag-field'] || 'category';
+  const get = (fieldKey, fallback) => {
+    const fieldName = cfg[fieldKey];
+    if (fieldName && item[fieldName] != null) return item[fieldName];
+    if (fallback && item[fallback] != null) return item[fallback];
+    return '';
+  };
 
-  const title = item[titleField] || item.title || '';
-  const summary = item[summaryField] || item.description || '';
-  const image = item[imageField] || item.image || '';
-  const path = item[pathField] || item.path || '';
-
-  let tag = item[tagField] || item.tags || '';
-  if (!tag && Array.isArray(item.tags)) {
-    tag = item.tags.join(', ');
-  }
-
-  return { title, summary, image, path, tag };
+  return {
+    title: get('title-field', 'title'),
+    summary: get('summary-field', 'description'),
+    image: get('image-field', 'image'),
+    path: get('path-field', 'path'),
+    tag: get('tag-field', ''),
+  };
 }
 
 /**
@@ -200,86 +190,223 @@ async function fetchIndex(cfg) {
 /**
  * Render cards layout.
  */
-function renderCards(items, cfg) {
+function renderCards(host, items, cfg) {
+  host.innerHTML = '';
+
   const grid = el('div', 'content-listing__grid');
 
-  items.forEach((item) => {
-    const { title, summary, image, path, tag } = mapFields(item, cfg);
-    const card = el('article', 'content-listing__card');
-    const href = path || '#';
+  items.forEach((raw) => {
+    const { title, summary, image, path, tag } = mapFields(raw, cfg);
 
+    const card = el('article', 'content-listing__card');
+    const linkHref = path || '#';
+
+    // image
     if (image) {
-      const imgLink = el('a', 'content-listing__image-link', { href });
-      const img = el('img', 'content-listing__image', {
-        src: image,
-        alt: title || '',
-        loading: 'lazy',
-      });
+      const imgLink = el('a', 'content-listing__image-link');
+      imgLink.href = linkHref;
+
+      const img = el('img', 'content-listing__image');
+      img.src = image;
+      img.alt = title || '';
+      img.loading = 'lazy';
+
       imgLink.append(img);
       card.append(imgLink);
     }
 
+    // body
     const body = el('div', 'content-listing__body');
 
     if (tag) {
-      body.append(el('span', 'content-listing__tag', tag));
+      const badge = el('span', 'content-listing__tag');
+      badge.textContent = tag;
+      body.append(badge);
     }
 
     if (title) {
       const h3 = el('h3', 'content-listing__title');
-      const link = el('a', 'content-listing__title-link', { href, text: title });
+      const link = el('a', 'content-listing__title-link');
+      link.href = linkHref;
+      link.textContent = title;
       h3.append(link);
       body.append(h3);
     }
 
     if (summary) {
-      body.append(el('p', 'content-listing__summary', summary));
+      const p = el('p', 'content-listing__summary');
+      p.textContent = summary;
+      body.append(p);
     }
 
     card.append(body);
     grid.append(card);
   });
 
-  return grid;
+  host.append(grid);
+}
+
+function sortAndFilter(data, cfg) {
+  let items = Array.isArray(data) ? data.slice() : [];
+
+  // Narrow to adventures, magazine, etc.
+  const pathPrefix = cfg['path-prefix'];
+  if (pathPrefix) {
+    items = items.filter((item) => (item.path || '').startsWith(pathPrefix));
+  }
+
+  // Optional fixed filter: filter-field + filter-value
+  const filterField = cfg['filter-field'];
+  const filterValue = cfg['filter-value'];
+  if (filterField && filterValue) {
+    items = items.filter((item) => `${item[filterField]}` === filterValue);
+  }
+
+  // Sorting
+  const sortBy = cfg['sort-by'];
+  if (sortBy) {
+    const direction = (cfg['sort-direction'] || 'asc').toLowerCase();
+    items.sort((a, b) => {
+      const av = a[sortBy];
+      const bv = b[sortBy];
+      if (av === bv) return 0;
+      if (av == null) return 1;
+      if (bv == null) return -1;
+      if (direction === 'desc') return av < bv ? 1 : -1;
+      return av > bv ? 1 : -1;
+    });
+  }
+
+  // Limit
+  const limit = parseInt(cfg.limit, 10);
+  if (!Number.isNaN(limit) && limit > 0) {
+    items = items.slice(0, limit);
+  }
+
+  return items;
 }
 
 /**
- * Main block entry point.
+ * Fetch JSON data (query-index or spreadsheet JSON).
+ */
+async function fetchJson(cfg) {
+  const url = cfg['json-path'] || '/query-index.json';
+  const resp = await fetch(url);
+  if (!resp.ok) throw new Error(`Failed to fetch listing: ${resp.status}`);
+  const payload = await resp.json();
+  if (Array.isArray(payload.data)) return payload.data;
+  return [];
+}
+
+/**
+ * Build interactive filters (tabs) for adventures.
+ *
+ * @param {Array<object>} allItems
+ * @param {string} filterField
+ * @param {(value: string|null) => void} onChange
+ */
+function buildFilters(allItems, filterField, onChange) {
+  const valueSet = new Set();
+
+  allItems.forEach((item) => {
+    const v = item[filterField];
+    if (v) valueSet.add(v);
+  });
+
+  const values = Array.from(valueSet);
+  if (!values.length) return null;
+
+  // Sort alphabetically for stable order
+  values.sort((a, b) => String(a).localeCompare(String(b)));
+
+  const container = el('div', 'content-listing__filters');
+  const list = el('div', 'content-listing__filter-list');
+
+  let active = '__all__';
+
+  const makeButton = (value, label) => {
+    const btn = el('button', 'content-listing__filter');
+    btn.type = 'button';
+    btn.textContent = label;
+
+    if (value === active) {
+      btn.classList.add('content-listing__filter--active');
+    }
+
+    btn.addEventListener('click', () => {
+      if (active === value) return;
+
+      active = value;
+      // update visual state
+      list.querySelectorAll('.content-listing__filter')
+        .forEach((elBtn) => elBtn.classList.remove('content-listing__filter--active'));
+      btn.classList.add('content-listing__filter--active');
+
+      const selected = value === '__all__' ? null : value;
+      onChange(selected);
+    });
+
+    return btn;
+  };
+
+  // "All" button
+  const allBtn = makeButton('__all__', 'All');
+  list.append(allBtn);
+
+  // Category buttons
+  values.forEach((value) => {
+    const label = value; // could be mapped if you add custom labels later
+    const btn = makeButton(value, label);
+    list.append(btn);
+  });
+
+  container.append(list);
+  return container;
+}
+
+
+/**
+ * Main decorate entry.
  */
 export default async function decorate(block) {
   const cfg = parseConfig(block);
-  if (!cfg) return;
 
   try {
-    const rawData = await fetchIndex(cfg);
-    const items = applyFilters(rawData, cfg);
+    const rawData = await fetchJson(cfg);
+    const allItems = sortAndFilter(rawData, cfg);
 
-    const wrapper = el('div', 'content-listing');
+    // Outer container
+    const container = el('div', 'content-listing');
+    const filtersHost = el('div', 'content-listing__filters-host');
+    const cardsHost = el('div', 'content-listing__cards-host');
 
-    // layout type hook (currently only "cards")
-    const type = (cfg.type || '').toLowerCase();
-    if (type) {
-      wrapper.classList.add(`content-listing--${type}`);
-    }
-
-    const grid = renderCards(items, cfg);
-    wrapper.append(grid);
-
-    // Optional CTA button underneath the cards
-    const ctaLabel = cfg['cta-label'];
-    const ctaUrl = cfg['cta-url'];
-    if (ctaLabel && ctaUrl) {
-      const footer = el('div', 'content-listing__footer');
-      const cta = el('a', 'button primary content-listing__cta', {
-        href: ctaUrl,
-        text: ctaLabel,
-      });
-      footer.append(cta);
-      wrapper.append(footer);
-    }
-
+    container.append(filtersHost, cardsHost);
     clearBlock(block);
-    block.append(wrapper);
+    block.append(container);
+
+    const filterField = cfg['filter-field'];
+    const enableFilters = (cfg['enable-filters'] || '').toLowerCase() === 'true';
+
+    const applyFilterAndRender = (value) => {
+      let itemsToRender = allItems;
+      if (filterField && value) {
+        itemsToRender = allItems.filter(
+          (item) => `${item[filterField]}` === value,
+        );
+      }
+      renderCards(cardsHost, itemsToRender, cfg);
+    };
+
+    // Only Adventures listing has enable-filters = true
+    if (filterField && enableFilters) {
+      const filtersEl = buildFilters(allItems, filterField, applyFilterAndRender);
+      if (filtersEl) {
+        filtersHost.append(filtersEl);
+      }
+    }
+
+    // Initial render (All)
+    applyFilterAndRender(null);
   } catch (e) {
     // eslint-disable-next-line no-console
     console.error('content-listing error', e);

@@ -1,0 +1,63 @@
+.block.page-hero {
+  position: relative;
+  padding: 3rem 1.5rem;
+  color: #fff;
+  background: radial-gradient(circle at top left, #444 0, #222 45%, #000 100%);
+}
+
+.page-hero__inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  gap: 2rem;
+  align-items: center;
+}
+
+@media (min-width: 900px) {
+  .page-hero__inner {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  }
+}
+
+.page-hero__media picture,
+.page-hero__media img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 0.75rem;
+  object-fit: cover;
+}
+
+.page-hero__content {
+  max-width: 36rem;
+}
+
+.page-hero__eyebrow {
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin: 0 0 0.5rem;
+  opacity: 0.85;
+}
+
+.page-hero__title {
+  margin: 0 0 0.75rem;
+  font-size: 2.3rem;
+  line-height: 1.1;
+}
+
+.page-hero__body {
+  margin: 0 0 1.5rem;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.page-hero__actions .button {
+  padding-inline: 1.75rem;
+  padding-block: 0.75rem;
+  border-radius: 999px;
+}
+
+.page-hero__actions .button.primary {
+  /* assumes boilerplate .button primary styling exists */
+}

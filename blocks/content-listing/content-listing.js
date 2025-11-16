@@ -2,43 +2,79 @@ import { el, getBlockRows, clearBlock } from '../../scripts/block-utils.js';
 
 /**
  * Parse config from a content-listing block.
- * Expects:
- *  Row 1: block name (handled by getBlockRows)
- *  Row 2: header cells  (e.g. "Source", "Path Filter", "Limit", ...)
- *  Row 3: value cells   (e.g. "magazine", "/us/en/magazine/*", "4", ...)
  *
- * We slug the header text => "Path Filter" -> "path-filter"
+ * Authoring pattern in Docs:
+ *
+ *  Row 1: merged cell with text "content-listing"
+ *  Row 2: header cells, e.g.:
+ *         Source | Path Filter | Limit | Sort | Type | CTA Label | CTA URL
+ *  Row 3: values row, e.g.:
+ *         magazine | /us/en/magazine/* | 4 | newest | cards | All Articles | https://...
+ *
+ *  Optional extra rows below (2 columns) as key/value pairs:
+ *         filter-field | category
+ *         filter-value | surfing
+ *         enable-filters | true
+ *         json-path | /adventures-index.json
+ *         title-field | title
+ *         summary-field | teaser
+ *         image-field | image
  */
 function parseConfig(block) {
   const rows = getBlockRows(block);
   const cfg = {};
 
-  rows.forEach((row) => {
-    const [keyCell, valueCell] = row.children;
-    if (!keyCell || !valueCell) return;
-    const key = (keyCell.textContent || '').trim().toLowerCase();
-    const value = (valueCell.textContent || '').trim();
-    if (!key) return;
-    cfg[key] = value;
-  });
+  if (!rows.length) return cfg;
+
+  const headerRow = rows[0];
+  const valueRow = rows[1];
+
+  // 1) Header + value row (multi-column)
+  if (
+    headerRow
+    && valueRow
+    && headerRow.children.length === valueRow.children.length
+    && headerRow.children.length > 0
+  ) {
+    const cols = headerRow.children.length;
+
+    for (let i = 0; i < cols; i += 1) {
+      const headerText = (headerRow.children[i].textContent || '')
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, '-')
+        .replace(/[^\w-]/g, '');
+      const valueText = (valueRow.children[i].textContent || '').trim();
+
+      if (headerText) {
+        cfg[headerText] = valueText;
+      }
+    }
+  }
+
+  // 2) Additional rows as simple key/value pairs (2 columns)
+  if (rows.length > 2) {
+    rows.slice(2).forEach((row) => {
+      if (row.children.length < 2) return;
+
+      const key = (row.children[0].textContent || '')
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, '-')
+        .replace(/[^\w-]/g, '');
+      const value = (row.children[1].textContent || '').trim();
+
+      if (key) {
+        cfg[key] = value;
+      }
+    });
+  }
 
   return cfg;
 }
 
-function normalizePathFilter(filter) {
-  if (!filter) return null;
-  const trimmed = filter.trim();
-  if (!trimmed) return null;
-
-  if (trimmed.endsWith('*')) {
-    return trimmed.slice(0, -1); // "/us/en/magazine/*" -> "/us/en/magazine/"
-  }
-
-  return trimmed;
-}
-
 /**
- * Map index item fields to card fields, with fallbacks.
+ * Map index item fields to card fields, with sensible fallbacks.
  */
 function mapFields(item, cfg) {
   const get = (fieldKey, fallback) => {
@@ -50,26 +86,40 @@ function mapFields(item, cfg) {
 
   return {
     title: get('title-field', 'title'),
-    summary: get('summary-field', 'description'),
+    summary: get('summary-field', 'teaser'),
     image: get('image-field', 'image'),
     path: get('path-field', 'path'),
     tag: get('tag-field', ''),
   };
 }
 
+function normalizePathFilter(filter) {
+  if (!filter) return null;
+  const trimmed = filter.trim();
+  if (!trimmed) return null;
+
+  // Allow "/us/en/magazine/*" style filters
+  if (trimmed.endsWith('*')) {
+    return trimmed.slice(0, -1);
+  }
+  return trimmed;
+}
+
 /**
- * Apply path filter, tag filters, sorting and limit.
+ * Apply path filter, fixed filter-field / filter-value, sorting and limit.
  */
-function applyFilters(items, cfg) {
+function sortAndFilter(items, cfg) {
   let result = Array.isArray(items) ? items.slice() : [];
 
-  // Path Filter (e.g. "/us/en/magazine/*")
-  const pathPrefix = normalizePathFilter(cfg['path-filter']);
+  // Path Filter: support either "Path Filter" or "Path Prefix" headers
+  const rawPrefix = cfg['path-prefix'] || cfg['path-filter'];
+  const pathPrefix = normalizePathFilter(rawPrefix);
+
   if (pathPrefix) {
     result = result.filter((item) => (item.path || '').startsWith(pathPrefix));
   }
 
-  // Filter Field + Filter Value (used later for adventure category filters)
+  // Optional fixed filter: filter-field + filter-value
   const filterField = cfg['filter-field'];
   const filterValue = cfg['filter-value'];
   if (filterField && filterValue) {
@@ -84,33 +134,8 @@ function applyFilters(items, cfg) {
     });
   }
 
-  // "Filters" = tag-style filters (e.g. "members-only")
-  const filters = cfg.filters;
-  if (!filterField && filters) {
-    const tokens = filters
-      .split(',')
-      .map((t) => t.trim().toLowerCase())
-      .filter(Boolean);
-
-    if (tokens.length) {
-      result = result.filter((item) => {
-        const tagsRaw = item.tags || item.category || '';
-        let values = [];
-
-        if (Array.isArray(tagsRaw)) {
-          values = tagsRaw.map((v) => String(v).toLowerCase());
-        } else if (typeof tagsRaw === 'string') {
-          values = tagsRaw.toLowerCase().split(/[,\s]+/);
-        }
-
-        if (!values.length) return false;
-        return tokens.some((token) => values.includes(token));
-      });
-    }
-  }
-
-  // Sort
-  const sort = (cfg.sort || '').toLowerCase();
+  // Sorting: "newest" or "title" (case-insensitive)
+  const sort = (cfg.sort || cfg['sort-by'] || '').toLowerCase();
   if (sort === 'newest') {
     result.sort((a, b) => {
       const ad = a.lastModified || a['last-modified'] || a.date || '';
@@ -139,56 +164,21 @@ function applyFilters(items, cfg) {
 }
 
 /**
- * Fetch index data.
- * - If "json-path" is provided, use that.
- * - Else, if "source" is set, try `/query-index-{source}.json`, then fallback to `/query-index.json`.
- * - Else, use `/query-index.json`.
+ * Fetch JSON data (query-index or spreadsheet JSON).
+ *
+ * If you ever add `json-path` in a key/value row, it will override the default.
  */
-async function fetchIndex(cfg) {
-  const explicitJson = cfg['json-path'];
-  const source = (cfg.source || '').toLowerCase();
-
-  const candidates = [];
-  if (explicitJson) candidates.push(explicitJson);
-
-  if (source && source !== 'pages' && source !== 'default') {
-    // e.g. "magazine" -> "/query-index-magazine.json"
-    candidates.push(`/query-index-${source}.json`);
-  }
-
-  // always fallback to the default index
-  candidates.push('/query-index.json');
-
-  const tried = new Set();
-
-  // Try candidates in order, first one that returns .data[] wins
-  // eslint-disable-next-line no-restricted-syntax
-  for (const path of candidates) {
-    if (!path || tried.has(path)) continue;
-    tried.add(path);
-
-    try {
-      // eslint-disable-next-line no-await-in-loop
-      const resp = await fetch(path);
-      if (!resp.ok) continue;
-
-      // eslint-disable-next-line no-await-in-loop
-      const json = await resp.json();
-      if (Array.isArray(json.data)) {
-        return json.data;
-      }
-    } catch (e) {
-      // ignore and try next candidate
-      // eslint-disable-next-line no-console
-      console.warn('content-listing: index fetch failed for', path, e);
-    }
-  }
-
+async function fetchJson(cfg) {
+  const url = cfg['json-path'] || '/query-index.json';
+  const resp = await fetch(url);
+  if (!resp.ok) throw new Error(`Failed to fetch listing: ${resp.status}`);
+  const payload = await resp.json();
+  if (Array.isArray(payload.data)) return payload.data;
   return [];
 }
 
 /**
- * Render cards layout.
+ * Render the cards grid into host.
  */
 function renderCards(host, items, cfg) {
   host.innerHTML = '';
@@ -196,12 +186,14 @@ function renderCards(host, items, cfg) {
   const grid = el('div', 'content-listing__grid');
 
   items.forEach((raw) => {
-    const { title, summary, image, path, tag } = mapFields(raw, cfg);
+    const {
+      title, summary, image, path, tag,
+    } = mapFields(raw, cfg);
 
     const card = el('article', 'content-listing__card');
     const linkHref = path || '#';
 
-    // image
+    // Image
     if (image) {
       const imgLink = el('a', 'content-listing__image-link');
       imgLink.href = linkHref;
@@ -215,7 +207,7 @@ function renderCards(host, items, cfg) {
       card.append(imgLink);
     }
 
-    // body
+    // Body
     const body = el('div', 'content-listing__body');
 
     if (tag) {
@@ -246,78 +238,27 @@ function renderCards(host, items, cfg) {
   host.append(grid);
 }
 
-function sortAndFilter(data, cfg) {
-  let items = Array.isArray(data) ? data.slice() : [];
-
-  // Narrow to adventures, magazine, etc.
-  const pathPrefix = cfg['path-prefix'];
-  if (pathPrefix) {
-    items = items.filter((item) => (item.path || '').startsWith(pathPrefix));
-  }
-
-  // Optional fixed filter: filter-field + filter-value
-  const filterField = cfg['filter-field'];
-  const filterValue = cfg['filter-value'];
-  if (filterField && filterValue) {
-    items = items.filter((item) => `${item[filterField]}` === filterValue);
-  }
-
-  // Sorting
-  const sortBy = cfg['sort-by'];
-  if (sortBy) {
-    const direction = (cfg['sort-direction'] || 'asc').toLowerCase();
-    items.sort((a, b) => {
-      const av = a[sortBy];
-      const bv = b[sortBy];
-      if (av === bv) return 0;
-      if (av == null) return 1;
-      if (bv == null) return -1;
-      if (direction === 'desc') return av < bv ? 1 : -1;
-      return av > bv ? 1 : -1;
-    });
-  }
-
-  // Limit
-  const limit = parseInt(cfg.limit, 10);
-  if (!Number.isNaN(limit) && limit > 0) {
-    items = items.slice(0, limit);
-  }
-
-  return items;
-}
-
 /**
- * Fetch JSON data (query-index or spreadsheet JSON).
- */
-async function fetchJson(cfg) {
-  const url = cfg['json-path'] || '/query-index.json';
-  const resp = await fetch(url);
-  if (!resp.ok) throw new Error(`Failed to fetch listing: ${resp.status}`);
-  const payload = await resp.json();
-  if (Array.isArray(payload.data)) return payload.data;
-  return [];
-}
-
-/**
- * Build interactive filters (tabs) for adventures.
- *
- * @param {Array<object>} allItems
- * @param {string} filterField
- * @param {(value: string|null) => void} onChange
+ * Build filter tabs (used for Adventures categories).
  */
 function buildFilters(allItems, filterField, onChange) {
   const valueSet = new Set();
 
   allItems.forEach((item) => {
     const v = item[filterField];
-    if (v) valueSet.add(v);
+    if (!v) return;
+
+    if (Array.isArray(v)) {
+      v.forEach((val) => valueSet.add(String(val)));
+    } else {
+      valueSet.add(String(v));
+    }
   });
 
   const values = Array.from(valueSet);
   if (!values.length) return null;
 
-  // Sort alphabetically for stable order
-  values.sort((a, b) => String(a).localeCompare(String(b)));
+  values.sort((a, b) => a.localeCompare(b));
 
   const container = el('div', 'content-listing__filters');
   const list = el('div', 'content-listing__filter-list');
@@ -337,9 +278,8 @@ function buildFilters(allItems, filterField, onChange) {
       if (active === value) return;
 
       active = value;
-      // update visual state
       list.querySelectorAll('.content-listing__filter')
-        .forEach((elBtn) => elBtn.classList.remove('content-listing__filter--active'));
+        .forEach((b) => b.classList.remove('content-listing__filter--active'));
       btn.classList.add('content-listing__filter--active');
 
       const selected = value === '__all__' ? null : value;
@@ -349,24 +289,20 @@ function buildFilters(allItems, filterField, onChange) {
     return btn;
   };
 
-  // "All" button
-  const allBtn = makeButton('__all__', 'All');
-  list.append(allBtn);
+  // "All"
+  list.append(makeButton('__all__', 'All'));
 
   // Category buttons
   values.forEach((value) => {
-    const label = value; // could be mapped if you add custom labels later
-    const btn = makeButton(value, label);
-    list.append(btn);
+    list.append(makeButton(value, value));
   });
 
   container.append(list);
   return container;
 }
 
-
 /**
- * Main decorate entry.
+ * Main decorate.
  */
 export default async function decorate(block) {
   const cfg = parseConfig(block);
@@ -375,12 +311,24 @@ export default async function decorate(block) {
     const rawData = await fetchJson(cfg);
     const allItems = sortAndFilter(rawData, cfg);
 
-    // Outer container
     const container = el('div', 'content-listing');
     const filtersHost = el('div', 'content-listing__filters-host');
     const cardsHost = el('div', 'content-listing__cards-host');
 
     container.append(filtersHost, cardsHost);
+
+    // Optional CTA (bottom-right link)
+    const ctaLabel = cfg['cta-label'];
+    const ctaUrl = cfg['cta-url'];
+    if (ctaLabel && ctaUrl) {
+      const footer = el('div', 'content-listing__footer');
+      const cta = el('a', 'content-listing__cta button primary');
+      cta.href = ctaUrl;
+      cta.textContent = ctaLabel;
+      footer.append(cta);
+      container.append(footer);
+    }
+
     clearBlock(block);
     block.append(container);
 
@@ -397,7 +345,7 @@ export default async function decorate(block) {
       renderCards(cardsHost, itemsToRender, cfg);
     };
 
-    // Only Adventures listing has enable-filters = true
+    // Only adventures listing uses enable-filters = true
     if (filterField && enableFilters) {
       const filtersEl = buildFilters(allItems, filterField, applyFilterAndRender);
       if (filtersEl) {

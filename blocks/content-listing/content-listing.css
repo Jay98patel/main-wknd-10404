@@ -1,11 +1,26 @@
+#recent-articles {
+  position: relative;
+  margin: 0;
+}
+
+#recent-articles:after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  display: block;
+  height: 2px;
+  width: 60px;
+  background-color: var(--link-bg-color);
+}
+
 .content-listing {
-  padding: 2rem 1.5rem;
+  padding: 1.5rem 0;
 }
 
 /* ---------- Filters (Adventures) ---------- */
 
 .content-listing__filters-host {
-  margin-bottom: 1.5rem;
+  display: none;
 }
 
 .content-listing__filters {
@@ -55,16 +70,11 @@
 .content-listing__card {
   display: flex;
   flex-direction: column;
-  background: var(--background-color, #ffffff);
-  border-radius: 0.75rem;
-  overflow: hidden;
-  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.06);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition: transform 0.15s ease, color 0.15s ease;
 }
 
 .content-listing__card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
 }
 
 .content-listing__image-link {
@@ -79,7 +89,7 @@
 }
 
 .content-listing__body {
-  padding: 1.25rem 1.5rem 1.5rem;
+  padding: 12px 0;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;

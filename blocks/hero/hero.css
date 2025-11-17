@@ -1,4 +1,8 @@
 /* Make hero section full-bleed, no extra padding above it */
+#wknd-adventures {
+  margin: 0;
+}
+
 .hero-container .hero-wrapper {
   max-width: none;
   padding: 0;
@@ -19,20 +23,44 @@
 .hero__slides {
   position: relative;
   width: 100%;
-  height: 100%;
+  height: 640px;
 }
 
 .hero__slide {
   position: absolute;
+  width: 100%;
   inset: 0;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.5s ease-in-out;
 }
 
+.hero__slide picture {
+  width: 100%;
+  display: block;
+}
+
+.hero__slide img {
+  width: 100%;
+}
+
 .hero__slide--active {
   opacity: 1;
   pointer-events: auto;
+}
+
+.hero__inner {
+  position: absolute;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  right: 10%;
+  bottom: 0;
+  left: 10%;
+  padding: 28px;
+  background-color: #ffffff;
+  color: #202020;
+  z-index: 999;
 }
 
 /* Background image */
@@ -50,12 +78,10 @@
 .hero__gradient {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    180deg,
-    rgba(0, 0, 0, 0.10) 0%,
-    rgba(0, 0, 0, 0.65) 65%,
-    rgba(0, 0, 0, 0.85) 100%
-  );
+  background: linear-gradient(180deg,
+      rgba(0, 0, 0, 0.10) 0%,
+      rgba(0, 0, 0, 0.65) 65%,
+      rgba(0, 0, 0, 0.85) 100%);
 }
 
 /* Content wrapper centers panel similar to wknd.site */
@@ -140,7 +166,7 @@
   height: 40px;
   border-radius: 999px;
   border: none;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;

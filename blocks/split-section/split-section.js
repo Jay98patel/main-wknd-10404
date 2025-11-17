@@ -15,7 +15,6 @@ export default function decorate(block) {
         const contentCell = cells[1];
 
         const item = el('section', 'split-section__item');
-        // Alternate layout for visual rhythm
         if (index % 2 === 1) {
             item.classList.add('split-section__item--reversed');
         }

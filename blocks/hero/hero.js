@@ -11,7 +11,6 @@ function getDataRows(block) {
     const rows = getBlockRows(block);
     if (!rows.length) return [];
 
-    // Skip the column-label row if it looks like "Image | Title | Subtitle | ..."
     const firstRow = rows[0];
     const firstCell = getCellText(firstRow, 0).toLowerCase();
     const secondCell = getCellText(firstRow, 1).toLowerCase();
@@ -91,8 +90,7 @@ function buildSlide(row, isActive) {
 function wireSlider(heroEl) {
     const slides = Array.from(heroEl.querySelectorAll('.hero__slide'));
     const total = slides.length;
-    if (total <= 1) return; // no controls if only one slide
-
+    if (total <= 1) return; 
     let current = 0;
 
     // ----- dots -----

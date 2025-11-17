@@ -58,11 +58,6 @@ function focusNavSection() {
   document.activeElement.addEventListener('keydown', openOnKeydown);
 }
 
-/**
- * Toggles all nav sections
- * @param {Element} sections The container element
- * @param {Boolean} expanded Whether the element should be expanded or collapsed
- */
 function toggleAllNavSections(sections, expanded = false) {
   if (!sections) return;
   sections.querySelectorAll(':scope > ul > li').forEach((section) => {
@@ -70,12 +65,6 @@ function toggleAllNavSections(sections, expanded = false) {
   });
 }
 
-/**
- * Toggles the entire nav
- * @param {Element} nav The container element
- * @param {Element} navSections The nav sections within the container element
- * @param {*} forceExpanded Optional param to force nav expand behavior when not null
- */
 function toggleMenu(nav, navSections, forceExpanded = null) {
   if (!nav || !navSections) return;
 
@@ -145,7 +134,6 @@ function buildNavModel(fragment) {
 
     if (!label || !url) return;
 
-    // Normalize absolute URLs → path only, so it works on .page & .live
     try {
       if (/^https?:\/\//i.test(url)) {
         const u = new URL(url);
@@ -185,7 +173,7 @@ export default async function decorate(block) {
   const navBrand = document.createElement('div');
   navBrand.className = 'nav-brand';
   const brandLink = document.createElement('a');
-  brandLink.href = '/us/en/home'; // you can change to '/' if you want
+  brandLink.href = '/us/en/home';
   brandLink.textContent = 'WKND';
   brandLink.className = 'nav-logo';
   navBrand.append(brandLink);

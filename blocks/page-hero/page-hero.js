@@ -11,8 +11,6 @@ export default function decorate(block) {
   const rows = getBlockRows(block);
   if (!rows.length) return;
 
-  // Find the first row that actually contains an image.
-  // This safely skips the "Image | Eyebrow | Title | ..." header row.
   const dataRow =
     rows.find((row) => row.querySelector('picture, img')) || rows[0];
 

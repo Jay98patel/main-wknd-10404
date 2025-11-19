@@ -6,15 +6,24 @@ import { loadFragment } from '../fragment/fragment.js';
  * @param {Element} block The footer block element
  */
 export default async function decorate(block) {
-  // load footer as fragment
   const footerMeta = getMetadata('footer');
-  const footerPath = footerMeta ? new URL(footerMeta, window.location).pathname : '/footer';
-  const fragment = await loadFragment(footerPath);
+  const footerPath = footerMeta
+    ? new URL(footerMeta, window.location).pathname
+    : '/footer';
 
-  // decorate footer DOM
+  const fragment = await loadFragment(footerPath);
+  if (!fragment) {
+    // nothing to render, avoid runtime errors
+    // eslint-disable-next-line no-console
+    console.warn('Footer fragment not found for path:', footerPath);
+    return;
+  }
+
   block.textContent = '';
   const footer = document.createElement('div');
-  while (fragment.firstElementChild) footer.append(fragment.firstElementChild);
+  while (fragment.firstElementChild) {
+    footer.append(fragment.firstElementChild);
+  }
 
   block.append(footer);
 }

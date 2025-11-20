@@ -77,6 +77,33 @@ function ensureSidebarListCSS() {
 export function initSidebarLists(root = document) {
   ensureSidebarListCSS();
 
+  // 1️⃣ Ensure main article H1 exists:
+  // Look at the first columns block and turn
+  // "MAGAZINE > Aloha Spirits in Northern Norway"
+  // into an <h1>Aloha Spirits in Northern Norway</h1>
+  const firstColumnsBlock = root.querySelector('.columns.block');
+  if (firstColumnsBlock) {
+    const firstCol = firstColumnsBlock.querySelector(':scope > div > div:first-child');
+    if (firstCol && !firstCol.querySelector('h1')) {
+      const firstP = firstCol.querySelector('p');
+      if (firstP) {
+        const raw = (firstP.textContent || '').trim();
+        // Expect pattern: "MAGAZINE > Title..."
+        const parts = raw.split('>');
+        if (parts.length > 1) {
+          const titleText = parts.slice(1).join('>').trim();
+          if (titleText) {
+            const h1 = document.createElement('h1');
+            h1.textContent = titleText;
+            h1.id = normalize(titleText); // optional, nice for anchors
+            firstP.insertAdjacentElement('afterend', h1);
+          }
+        }
+      }
+    }
+  }
+
+  // 2️⃣ Convert "sidebar-list" tables into sidebar-list blocks
   const tables = root.querySelectorAll('table');
 
   tables.forEach((table) => {
@@ -171,6 +198,7 @@ export function initSidebarLists(root = document) {
     table.replaceWith(block);
   });
 }
+
 
 /**
  * Default block decorator – this is used if you ever author

@@ -20,7 +20,8 @@
 /* ---------- Filters (Adventures) ---------- */
 
 .content-listing__filters-host {
-  display: none;
+  display: block;
+  margin-bottom: 0.75rem;;
 }
 
 .content-listing__filters {

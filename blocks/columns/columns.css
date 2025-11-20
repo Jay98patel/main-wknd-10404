@@ -31,3 +31,18 @@
     order: unset;
   }
 }
+/* West Coast Cycling / adventure detail layout
+   Section style: adventure-detail-layout
+   Only affects sections that explicitly use this style. */
+.section.adventure-detail-layout .columns__item {
+  display: grid;
+  grid-template-columns: minmax(0, 220px) minmax(0, 1fr);
+  column-gap: 3rem;
+  align-items: flex-start;
+}
+
+@media (max-width: 900px) {
+  .section.adventure-detail-layout .columns__item {
+    grid-template-columns: 1fr;
+  }
+}

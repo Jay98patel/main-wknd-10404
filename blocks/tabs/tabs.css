@@ -1,0 +1,79 @@
+/* blocks/tabs/tabs.css */
+
+.block.tabs {
+    margin-top: 1.5rem;
+}
+
+/* Tab row */
+.tabs__list {
+    display: inline-flex;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    margin-bottom: 1.5rem;
+}
+
+/* Single tab */
+.tabs__tab {
+    border: none;
+    background: transparent;
+    padding: 0.55rem 1.4rem;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    cursor: pointer;
+    color: rgba(0, 0, 0, 0.7);
+    border-radius: 0;
+    border-bottom: 2px solid transparent;
+}
+
+.tabs__tab+.tabs__tab {
+    margin-left: 0.35rem;
+}
+
+/* Active tab = black background like WKND */
+.tabs__tab--active {
+    color: #fff;
+    background: #111;
+    border-bottom-color: #111;
+}
+
+/* Panels */
+.tabs__panels {
+    margin-top: 0.5rem;
+}
+
+.tabs__panel {
+    display: none;
+}
+
+.tabs__panel--active {
+    display: block;
+}
+
+/* Make image full-width inside panel */
+.tabs__panel img,
+.tabs__panel picture {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.tabs__panel p:last-child {
+    margin-bottom: 0;
+}
+
+/* In adventure detail layout, tabs should sit tight under the title */
+.section.hero-container.trip-summary-container.tabs-container .block.tabs {
+    margin-top: 0;
+}
+
+
+@media (max-width: 900px) {
+    .tabs__list {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .tabs__tab {
+        margin-bottom: 0.35rem;
+    }
+}

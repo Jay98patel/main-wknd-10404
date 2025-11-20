@@ -1,0 +1,144 @@
+/* blocks/magazine-article/magazine-article.css */
+
+/* Root */
+.magazine-article {
+    padding: 3rem 0 4rem;
+    background: #ffffff;
+}
+
+/* Two-column layout */
+.magazine-article__inner {
+    max-width: 1180px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: minmax(0, 2.3fr) minmax(0, 0.9fr);
+    gap: 3rem;
+}
+
+/* Main article column */
+.magazine-article__main {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: rgba(0, 0, 0, 0.85);
+}
+
+.magazine-article__main>*+* {
+    margin-top: 1.25rem;
+}
+
+/* Breadcrumb */
+.magazine-article__main p:first-child {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: rgba(0, 0, 0, 0.5);
+}
+
+/* Title */
+.magazine-article__main h1,
+.magazine-article__main h2 {
+    margin: 0.4rem 0 0.75rem;
+    font-size: 1.9rem;
+    font-weight: 600;
+}
+
+/* Byline */
+.magazine-article__main p:nth-child(3) {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: rgba(0, 0, 0, 0.55);
+}
+
+/* Images inside article body */
+.magazine-article__main img,
+.magazine-article__main picture {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+/* Optional pull-quote styling if you wrap a quote in <blockquote> */
+.magazine-article__main blockquote {
+    margin: 2rem 0;
+    padding: 1.75rem 2rem;
+    background: #f7f7f7;
+    border-left: 4px solid #ffd600;
+    font-size: 1rem;
+    font-style: italic;
+}
+
+/* Sidebar column */
+.magazine-article__aside {
+    font-size: 0.8rem;
+    color: rgba(0, 0, 0, 0.78);
+}
+
+.magazine-article__aside>*+* {
+    margin-top: 1.75rem;
+}
+
+/* "Share this story" heading (make first heading / paragraph look like label) */
+.magazine-article__aside>h2:first-child,
+.magazine-article__aside>h3:first-child,
+.magazine-article__aside>p:first-child {
+    margin: 0 0 0.5rem;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: rgba(0, 0, 0, 0.6);
+}
+
+/* Simple row of social links (text or icons) */
+.magazine-article__aside a {
+    text-decoration: none;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    margin-right: 0.75rem;
+    color: rgba(0, 0, 0, 0.7);
+}
+
+.magazine-article__aside a:hover {
+    color: #000;
+}
+
+/* "More stories" list in sidebar (you can author it as a UL or P links) */
+.magazine-article__aside ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.magazine-article__aside li+li {
+    margin-top: 0.75rem;
+}
+
+.magazine-article__aside li a {
+    text-decoration: none;
+    font-size: 0.8rem;
+    text-transform: none;
+    letter-spacing: 0;
+}
+
+/* Make any thumbnail images in sidebar smaller */
+.magazine-article__aside img,
+.magazine-article__aside picture {
+    width: 100%;
+    height: auto;
+    margin-bottom: 0.4rem;
+}
+
+/* Responsive: stack columns on mobile */
+@media (max-width: 900px) {
+    .magazine-article__inner {
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+        padding-inline: 1rem;
+    }
+
+    .magazine-article__aside {
+        order: -1;
+        /* move sidebar above or below if you want: remove this to keep order */
+    }
+}

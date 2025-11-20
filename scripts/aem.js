@@ -9,6 +9,7 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
+import { initSidebarLists } from '../blocks/sidebar-list/sidebar-list.js';
 
 /* eslint-env browser */
 function sampleRUM(checkpoint, data) {
@@ -17,7 +18,7 @@ function sampleRUM(checkpoint, data) {
   try {
     window.hlx = window.hlx || {};
     if (!window.hlx.rum || !window.hlx.rum.collector) {
-      sampleRUM.enhance = () => {};
+      sampleRUM.enhance = () => { };
       const param = new URLSearchParams(window.location.search).get('rum');
       const weight = (param === 'on' && 1)
         || (window.SAMPLE_PAGEVIEWS_AT_RATE === 'high' && 10)
@@ -665,6 +666,17 @@ async function loadSection(section, loadCallback) {
   }
 }
 
+// async function loadSections(element) {
+//   const sections = [...element.querySelectorAll('div.section')];
+//   for (let i = 0; i < sections.length; i += 1) {
+//     // eslint-disable-next-line no-await-in-loop
+//     await loadSection(sections[i]);
+//     if (i === 0 && sampleRUM.enhance) {
+//       sampleRUM.enhance();
+//     }
+//   }
+// }
+
 /**
  * Loads all sections.
  * @param {Element} element The parent element of sections to load
@@ -679,6 +691,10 @@ async function loadSections(element) {
       sampleRUM.enhance();
     }
   }
+  initSidebarLists(element);
+
+  // 🔽 After all sections + blocks are loaded,
+  // convert any "sidebar-list" tables into the proper sidebar UI.
 }
 
 init();

@@ -19,10 +19,8 @@ function normalize(text) {
  * - "facts"   => Label / Value (adventure details)
  */
 function detectMode(headerRow) {
-  const cells = Array.from(headerRow.children);
   const map = {};
-
-  cells.forEach((cell, index) => {
+  Array.from(headerRow.cells).forEach((cell, index) => {
     const key = normalize(cell.textContent);
     if (key) map[key] = index;
   });
@@ -51,14 +49,136 @@ function detectMode(headerRow) {
     };
   }
 
-  // Fallback: treat as facts, first two columns
-  return {
-    mode: 'facts',
-    cols: { label: 0, value: 1 },
-  };
+  // Fallback: simple 2-col facts
+  return { mode: 'facts', cols: { label: 0, value: 1 } };
 }
 
+/**
+ * Make sure sidebar-list.css is loaded (needed because we are
+ * creating the block *after* loadBlock has already run).
+ */
+function ensureSidebarListCSS() {
+  const base = (window.hlx && window.hlx.codeBasePath) || '';
+  const href = `${base}/blocks/sidebar-list/sidebar-list.css`;
+
+  if (!document.querySelector(`head > link[href="${href}"]`)) {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = href;
+    document.head.append(link);
+  }
+}
+
+/**
+ * Scan a root element for "sidebar-list" tables and replace them
+ * with proper sidebar-list block markup.
+ * This is what scripts.js calls after loadSections().
+ */
+export function initSidebarLists(root = document) {
+  ensureSidebarListCSS();
+
+  const tables = root.querySelectorAll('table');
+
+  tables.forEach((table) => {
+    const rows = table.rows;
+    if (!rows || rows.length < 2) return;
+
+    const firstRow = rows[0];
+    const firstCell = firstRow.cells[0];
+    if (!firstCell) return;
+
+    // Only touch tables whose first row first cell = "sidebar-list"
+    const marker = normalize(firstCell.textContent);
+    if (marker !== 'sidebar-list') return;
+
+    const headerRow = rows[1];
+    const dataRows = Array.from(rows).slice(2);
+    if (!dataRows.length) return;
+
+    const { mode, cols } = detectMode(headerRow);
+
+    // Build outer block markup
+    const block = document.createElement('div');
+    block.className = `block sidebar-list sidebar-list--${mode}`;
+
+    if (mode === 'related') {
+      // --- Magazine "Share this Story" variant ---
+      const list = document.createElement('ul');
+      list.className = 'sidebar-list__items';
+
+      dataRows.forEach((row) => {
+        const cells = row.cells;
+        const title = (cells[cols.title]?.textContent || '').trim();
+        const date = (cells[cols.date]?.textContent || '').trim();
+        const path = (cells[cols.path]?.textContent || '').trim();
+        if (!title) return;
+
+        const li = document.createElement('li');
+        li.className = 'sidebar-list__item';
+
+        const titleBox = document.createElement('div');
+        titleBox.className = 'sidebar-list__title';
+
+        const link = document.createElement('a');
+        link.className = 'sidebar-list__title-link';
+        link.textContent = title;
+        if (path) link.href = path;
+
+        titleBox.appendChild(link);
+        li.appendChild(titleBox);
+
+        if (date) {
+          const meta = document.createElement('div');
+          meta.className = 'sidebar-list__meta';
+          meta.textContent = date;
+          li.appendChild(meta);
+        }
+
+        list.appendChild(li);
+      });
+
+      block.appendChild(list);
+    } else {
+      // --- Adventure "facts" variant ---
+      const wrapper = document.createElement('div');
+      wrapper.className = 'sidebar-list__facts';
+
+      dataRows.forEach((row) => {
+        const cells = row.cells;
+        const label = (cells[cols.label]?.textContent || '').trim();
+        const value = (cells[cols.value]?.textContent || '').trim();
+        if (!label && !value) return;
+
+        const fact = document.createElement('div');
+        fact.className = 'sidebar-list__fact';
+
+        const labelEl = document.createElement('div');
+        labelEl.className = 'sidebar-list__label';
+        labelEl.textContent = label;
+
+        const valueEl = document.createElement('div');
+        valueEl.className = 'sidebar-list__value';
+        valueEl.textContent = value;
+
+        fact.append(labelEl, valueEl);
+        wrapper.appendChild(fact);
+      });
+
+      block.appendChild(wrapper);
+    }
+
+    // Replace the original table with the block markup
+    table.replaceWith(block);
+  });
+}
+
+/**
+ * Default block decorator – this is used if you ever author
+ * a "real" sidebar-list block (not the table syntax).
+ */
 export default function decorate(block) {
+  ensureSidebarListCSS();
+
   const rows = getBlockRows(block);
   if (!rows.length) return;
 
@@ -68,11 +188,10 @@ export default function decorate(block) {
 
   const { mode, cols } = detectMode(headerRow);
 
-  clearBlock(block); // remove original table
+  clearBlock(block);
   block.classList.add(`sidebar-list--${mode}`);
 
   if (mode === 'related') {
-    // ------- Related articles (magazine) -------
     const list = el('ul', 'sidebar-list__items');
 
     dataRows.forEach((row) => {
@@ -80,7 +199,6 @@ export default function decorate(block) {
       const title = (cells[cols.title]?.textContent || '').trim();
       const date = (cells[cols.date]?.textContent || '').trim();
       const path = (cells[cols.path]?.textContent || '').trim();
-
       if (!title) return;
 
       const item = el('li', 'sidebar-list__item');
@@ -105,7 +223,7 @@ export default function decorate(block) {
     return;
   }
 
-  // ------- Facts (adventure details) -------
+  // Facts variant
   const wrapper = el('div', 'sidebar-list__facts');
 
   dataRows.forEach((row) => {

@@ -167,6 +167,7 @@ function renderCards(host, items, cfg) {
   const grid = el('div', 'content-listing__grid');
 
   items.forEach((raw) => {
+    console.log(raw)
     const {
       title, summary, image, path, tag,
     } = mapFields(raw, cfg);

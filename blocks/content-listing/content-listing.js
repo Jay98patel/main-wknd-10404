@@ -67,7 +67,7 @@ function mapFields(item, cfg) {
 
   return {
     title: get('title-field', 'title'),
-    summary: get('summary-field', 'teaser'),
+    summary: get('summary-field', 'description'),
     image: get('image-field', 'image'),
     path: get('path-field', 'path'),
     tag: get('tag-field', ''),
@@ -170,7 +170,7 @@ function renderCards(host, items, cfg) {
     const {
       title, summary, image, path, tag,
     } = mapFields(raw, cfg);
-
+    if (!title && !summary && !image) return;
     const card = el('article', 'content-listing__card');
     const linkHref = path || '#';
 

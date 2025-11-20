@@ -1,0 +1,80 @@
+/* Base block */
+.block.sidebar-list {
+  font-size: 0.8rem;
+}
+
+/* Remove default list styles */
+.block.sidebar-list .sidebar-list__items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Common layout: vertical line on the left */
+.block.sidebar-list .sidebar-list__item,
+.block.sidebar-list .sidebar-list__fact {
+  position: relative;
+  padding-left: 1.75rem;
+  margin-bottom: 1.75rem;
+}
+
+.block.sidebar-list .sidebar-list__item::before,
+.block.sidebar-list .sidebar-list__fact::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #e2e2e2;
+}
+
+/* ===== Related articles variant (magazine right rail) ===== */
+
+.block.sidebar-list.sidebar-list--related .sidebar-list__title {
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.block.sidebar-list.sidebar-list--related .sidebar-list__title-link {
+  color: #111;
+  text-decoration: none;
+}
+
+.block.sidebar-list.sidebar-list--related .sidebar-list__title-link:hover {
+  text-decoration: underline;
+}
+
+.block.sidebar-list.sidebar-list--related .sidebar-list__meta {
+  margin-top: 0.35rem;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: rgba(0, 0, 0, 0.55);
+}
+
+/* ===== Facts variant (adventure details) ===== */
+
+.block.sidebar-list.sidebar-list--facts .sidebar-list__label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: rgba(0, 0, 0, 0.45);
+  margin-bottom: 0.15rem;
+}
+
+.block.sidebar-list.sidebar-list--facts .sidebar-list__value {
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.10em;
+  font-weight: 600;
+  color: #111;
+}
+
+/* Spacing tweak on smaller screens */
+@media (max-width: 900px) {
+  .block.sidebar-list {
+    margin-top: 2rem;
+  }
+}

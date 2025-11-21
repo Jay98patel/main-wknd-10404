@@ -1,0 +1,67 @@
+/* blocks/faq-intro/faq-intro.css */
+
+.block.faq-intro {
+  padding: 3rem 0 2rem;
+}
+
+/* Layout: main content + sidebar card */
+.faq-intro__inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  gap: 3rem;
+  align-items: flex-start;
+}
+
+/* Left side: image + intro text */
+.faq-intro__main {
+  flex: 1 1 auto;
+}
+
+/* Make the image behave like the WKND design */
+.faq-intro__main picture {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.faq-intro__main img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  margin-bottom: 2rem;
+}
+
+/* Right side: "Need more help?" card */
+.faq-intro__aside {
+  flex: 0 0 260px;
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+.faq-intro__aside > *:first-child {
+  margin-top: 0;
+}
+
+.faq-intro__aside > *:last-child {
+  margin-bottom: 0;
+}
+
+/* Optional: style phone/email like links */
+.faq-intro__aside a {
+  text-decoration: none;
+  border-bottom: 1px solid #000;
+}
+
+/* Mobile: stack */
+@media (max-width: 900px) {
+  .faq-intro__inner {
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .faq-intro__aside {
+    flex: 1 1 auto;
+  }
+}

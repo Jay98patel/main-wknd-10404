@@ -18,6 +18,7 @@ header nav {
   justify-content: space-between;
   font-family: var(--body-font-family);
   background-color: #ffffff;
+  position: relative;
 }
 
 header .nav-brand {
@@ -79,16 +80,79 @@ header .nav-tools {
 header .nav-search {
   width: 100%;
   max-width: 220px;
+  position: relative;
+  /* 👈 NEW */
 }
 
 header .nav-search input {
   width: 100%;
   padding: 6px 10px;
+  padding-left: 28px;
   border-radius: 0;
   border: 1px solid #e5e5e5;
   background-color: #f7f7f7;
   font-size: 12px;
 }
+
+header .nav-search-icon {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+header .nav-search-results {
+  position: absolute;
+  right: 0;
+  top: 72px;
+  /* just below the nav bar */
+  width: 340px;
+  background: #111;
+  color: #fff;
+  padding: 14px 18px 16px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+  display: none;
+  z-index: 20;
+}
+
+header .nav-search-results.is-open {
+  display: block;
+}
+
+header .nav-search-close {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  background: none;
+  border: 0;
+  color: #fff;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+header .nav-search-results-list {
+  margin-top: 8px;
+}
+
+header .nav-search-results-list a {
+  display: block;
+  font-size: 13px;
+  color: #fff;
+  text-decoration: none;
+  margin-bottom: 6px;
+}
+
+header .nav-search-results-list a:hover {
+  text-decoration: underline;
+}
+
+/* HAMBURGER / MOBILE AS-IS */
+
+header .nav-hamburger {
+  display: none;
+}
+
 
 header .nav-hamburger {
   display: none;
@@ -171,4 +235,27 @@ header .nav-hamburger {
   header nav[aria-expanded='true'] .nav-tools {
     display: block;
   }
+}
+
+header .nav-search {
+  position: relative;
+}
+
+header .nav-search::before {
+  content: '';
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 14px;
+  height: 14px;
+  background-image: url('/icons/search.svg');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  pointer-events: none;
+}
+
+header .nav-search input {
+  padding-left: 30px;
 }

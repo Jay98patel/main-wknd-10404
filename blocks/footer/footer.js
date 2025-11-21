@@ -21,8 +21,53 @@ export default async function decorate(block) {
 
   block.textContent = '';
   const footer = document.createElement('div');
+  footer.classList.add('footer-inner');
+
   while (fragment.firstElementChild) {
     footer.append(fragment.firstElementChild);
+  }
+
+  // --- Enhance "FOLLOW US" into icon buttons ---
+  const paragraphs = footer.querySelectorAll('p');
+  let followHeading = null;
+
+  paragraphs.forEach((p) => {
+    if (p.textContent.trim().toLowerCase() === 'follow us') {
+      followHeading = p;
+    }
+  });
+
+  if (followHeading && followHeading.nextElementSibling) {
+    const socialPara = followHeading.nextElementSibling;
+    const links = socialPara.querySelectorAll('a');
+
+    if (links.length) {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'footer-social';
+
+      links.forEach((link) => {
+        const label = (link.textContent || '').toLowerCase();
+        link.classList.add('footer-social__link');
+
+        if (label.includes('facebook')) {
+          link.classList.add('footer-social__link--facebook');
+          link.setAttribute('aria-label', 'Facebook');
+        } else if (label.includes('twitter')) {
+          link.classList.add('footer-social__link--twitter');
+          link.setAttribute('aria-label', 'Twitter');
+        } else if (label.includes('instagram')) {
+          link.classList.add('footer-social__link--instagram');
+          link.setAttribute('aria-label', 'Instagram');
+        }
+
+        // hide text visually, we show only icon via CSS
+        link.textContent = '';
+        wrapper.append(link);
+      });
+
+      // replace the original paragraph with our wrapper
+      socialPara.replaceWith(wrapper);
+    }
   }
 
   block.append(footer);

@@ -1,20 +1,98 @@
 footer {
-  background-color: var(--light-color);
-  font-size: var(--body-font-size-xs);
+  background-color: #111;            /* black background */
+  color: #fff;
 }
 
-footer .footer > div {
-  margin: auto;
+footer a {
+  color: #fff;
+}
+
+footer .footer-inner {
+  margin: 0 auto;
   max-width: 1200px;
   padding: 40px 24px 24px;
+  font-size: 12px;
+  line-height: 1.6;
 }
 
-footer .footer p {
-  margin: 0;
-}
-
-@media (width >= 900px) {
-  footer .footer > div {
+@media (min-width: 900px) {
+  footer .footer-inner {
     padding: 40px 32px 24px;
   }
+}
+
+/* Top row: logo + nav + follow-us */
+footer .columns.block > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 2rem;
+}
+
+/* WKND logo text */
+footer .columns.block strong {
+  font-size: 2.4rem;
+  letter-spacing: 0.12em;
+}
+
+/* Nav links "MAGAZINE | ADVENTURES | FAQS | ABOUT US" */
+footer .columns.block p:nth-of-type(2) {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.75rem;
+}
+
+/* "FOLLOW US" heading */
+footer .columns.block p:nth-of-type(3) {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+/* --- Social icons --- */
+
+.footer-social {
+  display: inline-flex;
+  margin-top: 0.25rem;
+}
+
+.footer-social__link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background-color: #f5f5f5;
+  margin-left: 1px;
+  text-indent: -9999px;      /* hide text */
+  overflow: hidden;
+  border: 0;
+}
+
+/* one icon per link (update paths if needed) */
+.footer-social__link--facebook {
+  background-image: url('/icons/facebook.svg');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 22px 22px;
+}
+
+.footer-social__link--twitter {
+  background-image: url('/icons/twitter.svg');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 22px 22px;
+}
+
+.footer-social__link--instagram {
+  background-image: url('/icons/instagram.svg');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 22px 22px;
+}
+
+/* Bottom copyright text */
+footer .footer-inner p:last-of-type {
+  margin-top: 1.5rem;
 }

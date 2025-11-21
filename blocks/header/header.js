@@ -7,8 +7,8 @@ const defaultConfig = [
   { label: 'Home', href: '/us/en/home', style: 'primary' },
   { label: 'Magazine', href: '/us/en/magazine', style: 'primary' },
   { label: 'Adventures', href: '/us/en/adventures', style: 'primary' },
-  { label: 'About', href: '/us/en/about-us', style: 'primary' },
   { label: 'FAQs', href: '/us/en/faqs', style: 'primary' },
+  { label: 'About Us', href: '/us/en/about-us', style: 'primary' },
 ];
 
 function getNavConfig(fragment) {
@@ -41,6 +41,120 @@ function toggleMenu(nav) {
     document.body.style.overflowY = next ? 'hidden' : '';
   }
 }
+
+/* ---------- SEARCH INDEX + DROPDOWN ---------- */
+
+let searchIndexPromise;
+
+async function loadSearchIndex() {
+  if (!searchIndexPromise) {
+    searchIndexPromise = fetch('/query-index.json')
+      .then((resp) => (resp.ok ? resp.json() : { data: [] }))
+      .then((json) => (Array.isArray(json.data) ? json.data : []))
+      .catch((e) => {
+        // eslint-disable-next-line no-console
+        console.warn('Failed to load search index', e);
+        return [];
+      });
+  }
+  return searchIndexPromise;
+}
+
+/**
+ * Wires up:
+ * - search icon in the field
+ * - black dropdown with results
+ * - navigation on click
+ */
+function initSearch(nav, form, input) {
+  // icon inside the input (uses /icons/search.svg)
+  const icon = document.createElement('span');
+  icon.className = 'nav-search-icon icon icon-search';
+  form.append(icon);
+
+  // dropdown panel
+  const results = document.createElement('div');
+  results.className = 'nav-search-results';
+  nav.append(results);
+
+  const close = document.createElement('button');
+  close.type = 'button';
+  close.className = 'nav-search-close';
+  close.setAttribute('aria-label', 'Close search results');
+  close.textContent = '✕';
+  results.append(close);
+
+  const list = document.createElement('div');
+  list.className = 'nav-search-results-list';
+  results.append(list);
+
+  const openResults = () => {
+    results.classList.add('is-open');
+  };
+
+  const clearResults = () => {
+    list.innerHTML = '';
+    results.classList.remove('is-open');
+  };
+
+  let debounceId;
+
+  input.addEventListener('input', () => {
+    const term = input.value.trim();
+    if (!term) {
+      clearResults();
+      return;
+    }
+
+    window.clearTimeout(debounceId);
+    debounceId = window.setTimeout(async () => {
+      const index = await loadSearchIndex();
+      const lower = term.toLowerCase();
+
+      const matches = index
+        .filter((item) => {
+          const title = (item.title || '').toLowerCase();
+          const desc = (item.description || '').toLowerCase();
+          return title.includes(lower) || desc.includes(lower);
+        })
+        .slice(0, 8); // top 8 results
+
+      if (!matches.length) {
+        clearResults();
+        return;
+      }
+
+      list.innerHTML = '';
+      matches.forEach((item) => {
+        const link = document.createElement('a');
+        link.href = item.path;          // 🔗 navigation happens by default
+        link.textContent = item.title || item.path;
+        list.append(link);
+      });
+
+      openResults();
+    }, 150);
+  });
+
+  // clicking the X only hides the dropdown
+  close.addEventListener('click', () => {
+    clearResults();
+  });
+
+  // click outside nav -> close dropdown
+  document.addEventListener('click', (evt) => {
+    if (!nav.contains(evt.target)) {
+      clearResults();
+    }
+  });
+
+  // we handle navigation via links, so prevent default submit
+  form.addEventListener('submit', (evt) => {
+    evt.preventDefault();
+  });
+}
+
+/* ---------- MAIN DECORATE ---------- */
 
 export default async function decorate(block) {
   const navMeta = getMetadata('nav');
@@ -106,6 +220,9 @@ export default async function decorate(block) {
   form.append(input);
   tools.append(form);
   nav.append(tools);
+
+  // 🔍 wire search dropdown + suggestions:
+  initSearch(nav, form, input);
 
   const button = hamburger.querySelector('button');
   if (button) {

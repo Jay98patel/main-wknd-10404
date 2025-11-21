@@ -21,14 +21,19 @@
 
 @media (width >= 900px) {
   .columns > div {
-    align-items: center;
     flex-direction: unset;
-    gap: 24px;
+    gap: 3rem;
   }
 
   .columns > div > div {
-    flex: 1;
     order: unset;
+  }
+
+  .columns > div > div:first-child {
+    width: 66.66%;
+  }
+  .columns > div > div:last-child {
+    width: 33.33%;
   }
 }
 /* West Coast Cycling / adventure detail layout

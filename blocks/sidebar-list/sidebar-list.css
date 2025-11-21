@@ -6,16 +6,19 @@
 /* Remove default list styles */
 .block.sidebar-list .sidebar-list__items {
   list-style: none;
-  margin: 0;
-  padding: 0;
+  margin: 3rem 0;
+  padding: 2rem 0 0;
 }
 
 /* Common layout: vertical line on the left */
 .block.sidebar-list .sidebar-list__item,
 .block.sidebar-list .sidebar-list__fact {
   position: relative;
-  padding-left: 1.75rem;
   margin-bottom: 1.75rem;
+  min-height: 120px;
+  padding: .5rem 1rem;
+  padding-left: 1.5rem;
+  transition: .25s background-color ease-in-out color ease-in-out;
 }
 
 .block.sidebar-list .sidebar-list__item::before,
@@ -25,8 +28,16 @@
   left: 0;
   top: 0;
   bottom: 0;
-  width: 2px;
+  width: 5px;
   background: #e2e2e2;
+}
+
+.block.sidebar-list .sidebar-list__item:hover {
+  background-color: #ffea00;
+}
+
+.block.sidebar-list .sidebar-list__item:hover::before {
+  background-color: #202020;
 }
 
 /* ===== Related articles variant (magazine right rail) ===== */
@@ -43,7 +54,7 @@
 }
 
 .block.sidebar-list.sidebar-list--related .sidebar-list__title-link:hover {
-  text-decoration: underline;
+  text-decoration: none;
 }
 
 .block.sidebar-list.sidebar-list--related .sidebar-list__meta {

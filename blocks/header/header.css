@@ -4,14 +4,15 @@ header .nav-wrapper {
   left: 0;
   width: 100%;
   background-color: #ffffff;
-  z-index: 10;
+  z-index: 9999;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
 }
 
 header nav {
   max-width: 1248px;
   margin: 0 auto;
-  padding: 0 32px;
+  /* padding: 50px 32px; */
+  padding: 10px 32px;
   height: 72px;
   display: flex;
   align-items: center;
@@ -51,6 +52,13 @@ header .nav-sections ul {
 
 header .nav-sections li {
   position: relative;
+  padding: 15px 17px;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+header .nav-sections li:hover {
+  background-color: #ffea00;
 }
 
 header .nav-sections a {
@@ -62,12 +70,12 @@ header .nav-sections a {
   padding-bottom: 4px;
 }
 
-header .nav-item--secondary a {
-  color: #666666;
+header .nav-sections a:hover {
+  text-decoration: none;
 }
 
-header .nav-sections a:hover {
-  border-bottom: 2px solid #000000;
+header .nav-item--secondary a {
+  color: #666666;
 }
 
 header .nav-tools {

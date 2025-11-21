@@ -60,7 +60,6 @@
   right: 10%;
   bottom: 0;
   left: 10%;
-  padding: 28px;
   background-color: #ffffff;
   color: #202020;
   z-index: 999;
@@ -88,6 +87,13 @@
 }
 
 /* Content wrapper centers panel similar to wknd.site */
+.hero__content {
+  padding: 28px;
+}
+
+.hero__content:empty {
+  display: none;
+}
 
 .hero__content-wrapper {
   position: relative;

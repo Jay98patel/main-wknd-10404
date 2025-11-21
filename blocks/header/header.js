@@ -7,8 +7,8 @@ const defaultConfig = [
   { label: 'Home', href: '/us/en/home', style: 'primary' },
   { label: 'Magazine', href: '/us/en/magazine', style: 'primary' },
   { label: 'Adventures', href: '/us/en/adventures', style: 'primary' },
-  { label: 'About', href: '/us/en/about', style: 'primary' },
-  { label: 'FAQs', href: '/us/en/faqs', style: 'secondary' },
+  { label: 'About', href: '/us/en/about-us', style: 'primary' },
+  { label: 'FAQs', href: '/us/en/faqs', style: 'primary' },
 ];
 
 function getNavConfig(fragment) {

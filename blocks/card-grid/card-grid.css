@@ -98,6 +98,17 @@
   color: rgba(0, 0, 0, 0.8);
 }
 
+.card-grid__social a.card-grid__social-link {
+  font-size: 0.8rem;
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  color: rgba(0, 0, 0, 0.8);
+}
+
 /* --- Icon-style social links (F / T / I -> SVG icons) --- */
 
 .card-grid__social-icon {

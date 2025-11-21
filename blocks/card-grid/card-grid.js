@@ -27,6 +27,59 @@ function normalizeHeader(text) {
   return cleaned;
 }
 
+/**
+ * Turn "F  T  I" (or anchors with that text) into icon elements
+ * using the same SVG files as footer (/icons/facebook.svg etc.).
+ */
+function enhanceSocialIcons(container) {
+  const iconMap = {
+    f: { className: 'card-grid__social-icon--facebook', label: 'Facebook' },
+    facebook: { className: 'card-grid__social-icon--facebook', label: 'Facebook' },
+    t: { className: 'card-grid__social-icon--twitter', label: 'Twitter' },
+    twitter: { className: 'card-grid__social-icon--twitter', label: 'Twitter' },
+    i: { className: 'card-grid__social-icon--instagram', label: 'Instagram' },
+    instagram: { className: 'card-grid__social-icon--instagram', label: 'Instagram' },
+  };
+
+  const tokens = [];
+
+  // If there are <a> tags, ONLY read those (avoid counting text twice).
+  const linkEls = Array.from(container.querySelectorAll('a'));
+  const sourceEls = linkEls.length
+    ? linkEls
+    : Array.from(container.querySelectorAll('p, span, strong'));
+
+  sourceEls.forEach((el) => {
+    const text = (el.textContent || '').trim();
+    if (!text) return;
+
+    const parts = text.split(/[\s,|]+/);
+    parts.forEach((part) => {
+      const key = part.toLowerCase();
+      const iconCfg = iconMap[key];
+      if (!iconCfg) return;
+
+      const href = el.tagName === 'A' ? el.getAttribute('href') : null;
+      tokens.push({ key, href });
+    });
+  });
+
+  if (!tokens.length) return;
+
+  // Clear original "F T I" text
+  container.innerHTML = '';
+
+  // Add icon elements
+  tokens.forEach(({ key, href }) => {
+    const { className, label } = iconMap[key];
+    const iconEl = document.createElement(href ? 'a' : 'span');
+    iconEl.className = `card-grid__social-icon ${className}`;
+    if (href) iconEl.href = href;
+    iconEl.setAttribute('aria-label', label);
+    iconEl.textContent = '';
+    container.append(iconEl);
+  });
+}
 export default function decorate(block) {
   const rows = getBlockRows(block);
   if (!rows.length) return;
@@ -106,7 +159,10 @@ export default function decorate(block) {
       const socialEl = el('div', 'card-grid__social');
       moveChildren(cells[socialCol], socialEl);
 
-      // Only append if there is something (text, icons, links…)
+      // Convert "F T I" etc. into SVG icons
+      enhanceSocialIcons(socialEl);
+
+      // Only append if something remains
       if (socialEl.childElementCount > 0 || socialEl.textContent.trim()) {
         body.append(socialEl);
       }

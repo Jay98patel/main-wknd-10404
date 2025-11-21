@@ -228,6 +228,64 @@
   background: #000000;
 }
 
+/* -------- Adventure detail layout: hero + trip summary + tabs -------- */
+/* In the section that also has trip-summary/tabs, we do NOT want
+   another big hero image slider – we only want the title. */
+
+.hero-container.trip-summary-container .hero {
+  min-height: auto;
+  color: #000;
+}
+
+/* Make slides behave like normal flow, not overlapping slider */
+.hero-container.trip-summary-container .hero__slides {
+  position: static;
+  height: auto;
+}
+
+/* Show only the first slide (the one that contains the H1) */
+.hero-container.trip-summary-container .hero__slide {
+  position: static;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.hero-container.trip-summary-container .hero__slide:not(:first-child) {
+  display: none;
+  /* hide extra slides so the title is not repeated */
+}
+
+/* Hide any images in this second hero – we only need the text */
+.hero-container.trip-summary-container .hero__slide picture,
+.hero-container.trip-summary-container .hero__slide img {
+  display: none;
+}
+
+/* Make the title block look like the WKND detail heading */
+.hero-container.trip-summary-container .hero__inner {
+  position: static;
+  max-width: 1200px;
+  margin: 3rem auto 2rem;
+  padding: 0;
+  background: none;
+}
+
+.hero-container.trip-summary-container .hero__content {
+  padding: 0;
+}
+
+.hero-container.trip-summary-container .hero__title {
+  font-size: 2.3rem;
+  font-weight: 400;
+  margin: 0 0 2rem;
+}
+
+/* No dots/arrows for the second hero */
+.hero-container.trip-summary-container .hero__nav {
+  display: none;
+}
+
+
 /* ----- Responsive tweaks ----- */
 
 @media (max-width: 768px) {

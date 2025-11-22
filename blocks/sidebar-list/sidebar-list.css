@@ -32,6 +32,10 @@
   background: #e2e2e2;
 }
 
+.block.sidebar-list.sidebar-list--related .sidebar-list__item {
+  cursor: pointer;
+}
+
 .block.sidebar-list .sidebar-list__item:hover {
   background-color: #ffea00;
 }

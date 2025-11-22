@@ -143,6 +143,16 @@ export function initSidebarLists(root = document) {
         const li = document.createElement('li');
         li.className = 'sidebar-list__item';
 
+        // 🔹 Make the whole card clickable if we have a path
+        if (path) {
+          li.dataset.href = path;
+          li.addEventListener('click', (event) => {
+            // If user actually clicked a link inside, let default behavior run
+            if (event.target.closest('a')) return;
+            window.location.href = path;
+          });
+        }
+
         const titleBox = document.createElement('div');
         titleBox.className = 'sidebar-list__title';
 
@@ -231,6 +241,16 @@ export default function decorate(block) {
 
       const item = el('li', 'sidebar-list__item');
 
+      // 🔹 Make whole card clickable if we have a path
+      if (path) {
+        item.dataset.href = path;
+        item.addEventListener('click', (event) => {
+          // If the user clicked directly on the link, keep default behavior
+          if (event.target.closest('a')) return;
+          window.location.href = path;
+        });
+      }
+
       const titleBox = el('div', 'sidebar-list__title');
       const link = el('a', 'sidebar-list__title-link', {
         href: path || '#',
@@ -250,6 +270,7 @@ export default function decorate(block) {
     block.append(list);
     return;
   }
+
 
   // Facts variant
   const wrapper = el('div', 'sidebar-list__facts');

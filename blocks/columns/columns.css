@@ -1,4 +1,4 @@
-.columns > div {
+.columns>div {
   display: flex;
   flex-direction: column;
 }
@@ -7,35 +7,65 @@
   width: 100%;
 }
 
-.columns > div > div {
+.columns>div>div {
   order: 1;
 }
 
-.columns > div > .columns-img-col {
+.columns>div>.columns-img-col {
   order: 0;
 }
 
-.columns > div > .columns-img-col img {
+.columns>div>.columns-img-col img {
   display: block;
 }
 
-@media (width >= 900px) {
-  .columns > div {
+@media (width >=900px) {
+  .columns>div {
     flex-direction: unset;
     gap: 3rem;
   }
 
-  .columns > div > div {
+  .columns>div>div {
     order: unset;
   }
 
-  .columns > div > div:first-child {
+  .columns>div>div:first-child {
+    display: flex;
+    align-items: center;
+    gap: 3rem;
+    flex-grow: 1;
+  }
+
+  .columns>div>div:first-child h3,
+  .columns>div>div:first-child p,
+  .columns>div>div:last-child p {
+    margin: 0;
+  }
+
+  .columns>div>div:last-child {
+    display: flex;
+    align-items: flex-end;
+    gap: 14px;
+    flex-shrink: 0;
+  }
+
+  .columns.columns-2-cols>div>div:first-child {
+    display: block;
     width: 66.66%;
   }
-  .columns > div > div:last-child {
+
+  .columns.columns-2-cols>div>div:last-child {
     width: 33.33%;
+    flex-direction: column;
+    align-items: flex-start;
   }
+
+  .columns-wrapper {
+    padding-bottom: 3rem !important;
+  }
+
 }
+
 /* West Coast Cycling / adventure detail layout
    Section style: adventure-detail-layout
    Only affects sections that explicitly use this style. */

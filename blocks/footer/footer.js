@@ -27,6 +27,13 @@ export default async function decorate(block) {
     footer.append(fragment.firstElementChild);
   }
 
+  // 🔹 Add an ID to the real <footer> wrapper so we can scope styles
+  const footerEl = block.closest('footer');
+  if (footerEl && !footerEl.id) {
+    footerEl.id = 'site-footer';
+  }
+  
+
   // --- Enhance "FOLLOW US" into icon buttons ---
   const paragraphs = footer.querySelectorAll('p');
   let followHeading = null;

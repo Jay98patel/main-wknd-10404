@@ -275,3 +275,18 @@ main .section.highlight {
   margin: 0;
   padding: 40px 0;
 }
+
+
+.default-content-wrapper > h2 {
+  position: relative;
+}
+
+.default-content-wrapper > h2:after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  display: block;
+  height: 2px;
+  width: 60px;
+  background-color: #ffd600;
+}

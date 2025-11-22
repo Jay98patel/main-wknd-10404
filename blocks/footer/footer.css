@@ -1,5 +1,6 @@
+/* Footer container */
 footer {
-  background-color: #111;            /* black background */
+  background-color: #111;
   color: #fff;
 }
 
@@ -21,37 +22,36 @@ footer .footer-inner {
   }
 }
 
-/* Top row: logo + nav + follow-us */
-footer .columns.block > div {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+/* 🔹 Only affect columns used in footer */
+.footer-columns > div {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr)); /* 4 fixed columns */
   gap: 2rem;
+  align-items: flex-start;
 }
 
 /* WKND logo text */
-footer .columns.block strong {
+.footer-columns strong {
   font-size: 2.4rem;
   letter-spacing: 0.12em;
 }
 
-/* Nav links "MAGAZINE | ADVENTURES | FAQS | ABOUT US" */
-footer .columns.block p:nth-of-type(2) {
+/* "MAGAZINE | ADVENTURES | FAQS | ABOUT US" */
+.footer-columns p:nth-of-type(2) {
   text-transform: uppercase;
   letter-spacing: 0.12em;
   font-size: 0.75rem;
 }
 
 /* "FOLLOW US" heading */
-footer .columns.block p:nth-of-type(3) {
+.footer-columns p:nth-of-type(3) {
   text-transform: uppercase;
   letter-spacing: 0.12em;
   font-size: 0.75rem;
   margin-bottom: 0.5rem;
 }
 
-/* --- Social icons --- */
-
+/* Social icons wrapper */
 .footer-social {
   display: inline-flex;
   margin-top: 0.25rem;
@@ -64,13 +64,12 @@ footer .columns.block p:nth-of-type(3) {
   width: 48px;
   height: 48px;
   background-color: #f5f5f5;
-  margin-left: 1px;
-  text-indent: -9999px;      /* hide text */
+  text-indent: -9999px;
   overflow: hidden;
   border: 0;
 }
 
-/* one icon per link (update paths if needed) */
+/* Icons */
 .footer-social__link--facebook {
   background-image: url('/icons/facebook.svg');
   background-repeat: no-repeat;

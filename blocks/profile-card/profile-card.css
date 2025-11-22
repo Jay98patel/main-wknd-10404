@@ -1,0 +1,130 @@
+/* Wrapper: avatar column + profile-card block */
+.profile-card-wrapper {
+    width: 100% !important;
+    padding: 3rem 0 0 !important;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    position: relative;
+}
+
+.profile-card-wrapper::before {
+    content: '';
+    max-width: 768px;
+    width: 100%;
+    height: 1px;
+    background: #eee;
+    position: absolute;
+    top: 0;
+}
+
+/* Avatar column (left div inside wrapper) */
+.profile-card__avatar-wrap {
+    flex: 0 0 auto;
+}
+
+/* Avatar itself (picture or img) */
+.profile-card__avatar,
+.profile-card__avatar picture,
+.profile-card__avatar img {
+    display: block;
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* Block itself */
+.profile-card.block {
+    flex: 1 1 auto;
+    max-width: 675px;
+}
+
+/* Main row inside block: text + social bar */
+.profile-card__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 3rem;
+}
+
+/* Left text (name + role) */
+.profile-card__text {
+    display: flex;
+    flex-direction: column;
+}
+
+.profile-card__name {
+    margin: 0 0 0.2rem;
+    font-size: 1.25rem;
+    font-weight: 400;
+}
+
+.profile-card__role {
+    margin: 0;
+    font-size: 0.8rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(0, 0, 0, 0.7);
+}
+
+/* Right black social bar */
+.profile-card__social-bar {
+    background: #111;
+    padding: 0.8725rem 1.75rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.profile-card__social-icons {
+    display: flex;
+    gap: 0.75rem;
+}
+
+/* Icon buttons */
+.profile-card__social-icon {
+    display: inline-flex;
+    width: 22px;
+    height: 22px;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 20px 20px;
+    text-indent: -9999px;
+    overflow: hidden;
+    filter: invert(1);
+    /* makes black SVGs white on dark bg */
+}
+
+/* Use same SVGs as footer */
+.profile-card__social-icon--facebook {
+    background-image: url('/icons/facebook.svg');
+}
+
+.profile-card__social-icon--twitter {
+    background-image: url('/icons/twitter.svg');
+}
+
+.profile-card__social-icon--instagram {
+    background-image: url('/icons/instagram.svg');
+}
+
+/* Responsive */
+@media (max-width: 800px) {
+    .profile-card-wrapper {
+        flex-direction: column;
+        align-items: flex-start;
+        padding-inline: 1rem;
+    }
+
+    .profile-card__row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .profile-card__social-bar {
+        align-self: stretch;
+        justify-content: flex-start;
+    }
+}

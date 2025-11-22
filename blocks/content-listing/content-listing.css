@@ -17,15 +17,32 @@
   padding: 1.5rem 0;
 }
 
+.content-listing.block {
+  padding-top: 0;
+}
+
+#current-adventures {
+  position: relative;
+}
+
+#current-adventures:after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  display: block;
+  height: 2px;
+  width: 60px;
+  background-color: var(--link-bg-color);
+}
+
 /* ---------- Filters (Adventures) ---------- */
 
 .content-listing__filters-host {
   display: block;
-  margin-bottom: 0.75rem;;
+  margin-bottom: 0.75rem;
 }
 
 .content-listing__filters {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
   overflow-x: auto;
   padding-bottom: 0.25rem;
 }
@@ -46,14 +63,19 @@
   color: rgba(0, 0, 0, 0.7);
   border-bottom: 2px solid transparent;
   white-space: nowrap;
+  transition: .25s ease all;
+}
+
+.content-listing__filter:hover,
+.content-listing__filter:focus {
+  color: #ffffff;
+  background: #202020;
 }
 
 .content-listing__filter--active {
-  color: #000;
+  color: #ffffff;
   font-weight: 600;
-  border-bottom-color: #ffd600;
-  /* WKND yellow-ish */
-  background: rgba(0, 0, 0, 0.02);
+  background: #202020;
 }
 
 /* ---------- Cards grid ---------- */
@@ -128,7 +150,7 @@
 
   overflow: hidden;
   display: -webkit-box;
-  -webkit-line-clamp: 2;       
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
 }
 

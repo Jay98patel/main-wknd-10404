@@ -2,6 +2,11 @@ export default function decorate(block) {
   const cols = [...block.firstElementChild.children];
   block.classList.add(`columns-${cols.length}-cols`);
 
+  // 🔹 If this columns block is inside a <footer>, tag it
+  if (block.closest('footer')) {
+    block.classList.add('footer-columns');
+  }
+
   // setup image columns
   [...block.children].forEach((row) => {
     [...row.children].forEach((col) => {

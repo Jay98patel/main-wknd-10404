@@ -71,6 +71,10 @@
   }
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   display: none;
   margin: 0;
@@ -277,11 +281,11 @@ main .section.highlight {
 }
 
 
-.default-content-wrapper > h2 {
+.default-content-wrapper>h2 {
   position: relative;
 }
 
-.default-content-wrapper > h2:after {
+.default-content-wrapper>h2:after {
   content: '';
   position: absolute;
   bottom: -8px;

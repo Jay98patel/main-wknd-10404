@@ -61,6 +61,10 @@ header .nav-sections li:hover {
   background-color: #ffea00;
 }
 
+header .nav-sections li.is-active {
+  background-color: #ffea00;
+}
+
 header .nav-sections a {
   text-decoration: none;
   text-transform: uppercase;
@@ -176,7 +180,7 @@ header .nav-hamburger {
   header .nav-hamburger {
     display: flex;
     align-items: center;
-    margin-left: auto;
+    margin-right: auto;
   }
 
   header .nav-hamburger button {

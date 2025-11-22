@@ -233,4 +233,46 @@ export default async function decorate(block) {
     nav.setAttribute('aria-expanded', e.matches ? 'true' : 'false');
     if (e.matches) document.body.style.overflowY = '';
   });
+
+  // 🔥 finally, mark the active nav item
+  markActiveNav(nav);
+}
+
+function markActiveNav(nav) {
+  const normalize = (path) => {
+    if (!path) return '/';
+    return path.replace(/\/+$/, '') || '/';
+  };
+
+  const current = normalize(window.location.pathname);
+
+  // Consider menu links (right side) and brand link (WKND)
+  const links = nav.querySelectorAll('.nav-sections a, .nav-brand a');
+  if (!links.length) return;
+
+  let bestLink = null;
+  let bestLength = 0;
+
+  links.forEach((link) => {
+    try {
+      const url = new URL(link.href);
+      const linkPath = normalize(url.pathname);
+
+      // Exact match OR current path is under this section (for detail pages)
+      if (current === linkPath || current.startsWith(`${linkPath}/`)) {
+        if (linkPath.length > bestLength) {
+          bestLength = linkPath.length;
+          bestLink = link;
+        }
+      }
+    } catch (e) {
+      // ignore malformed URLs
+    }
+  });
+
+  if (bestLink) {
+    bestLink.classList.add('is-active');
+    const li = bestLink.closest('li');
+    if (li) li.classList.add('is-active');
+  }
 }

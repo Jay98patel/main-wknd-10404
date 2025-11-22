@@ -41,6 +41,17 @@
     margin-bottom: 0;
 }
 
+@media (max-width: 899px) {
+
+    .split-section__item {
+        flex-direction: column;
+    }
+
+    .split-section.block {
+        padding: 1rem 0;
+    }
+}
+
 @media (min-width: 900px) {
     .split-section__item--reversed {
         direction: rtl;

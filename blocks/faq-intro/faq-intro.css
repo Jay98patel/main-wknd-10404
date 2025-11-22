@@ -40,12 +40,14 @@
   line-height: 1.6;
 }
 
-.faq-intro__aside > *:first-child {
+.faq-intro__aside>*:first-child {
   margin-top: 0;
+  font-weight: 500;
 }
 
-.faq-intro__aside > *:last-child {
+.faq-intro__aside>*:last-child {
   margin-bottom: 0;
+  line-height: 2.5;
 }
 
 /* Optional: style phone/email like links */

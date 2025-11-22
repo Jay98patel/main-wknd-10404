@@ -6,6 +6,10 @@
   font-size: 0.9rem;
 }
 
+.faq-intro-container {
+  line-height: 2.5;
+}
+
 .faq-accordion__list {
   border-top: 1px solid #e6e6e6;
 }
@@ -14,6 +18,7 @@
 .faq-accordion__item {
   border-bottom: 1px solid #e6e6e6;
 }
+
 
 /* Question row */
 .faq-accordion__question {
@@ -25,6 +30,12 @@
   align-items: center;
   justify-content: space-between;
   cursor: pointer;
+}
+
+.faq-accordion__question:focus,
+.faq-accordion__question:hover,
+.faq-accordion__question:active {
+  background: none;
 }
 
 .faq-accordion__question-text {
@@ -42,15 +53,22 @@
 
 /* Answer panel */
 .faq-accordion__answer {
-  padding: 0 0 1.2rem;
+  padding: 0;
   max-width: 640px;
   color: #444;
-  line-height: 1.7;
+  line-height: 1.7;     /* collapsed by default */
+  overflow: hidden;              /* hide content while closed */
+  transition: max-height 0.3s ease;
+}
+
+.faq-accordion__answer p {
+  margin-bottom: 6px;
 }
 
 /* Meta pills (category / tag) */
 .faq-accordion__meta {
   margin-bottom: 0.4rem;
+  padding: 6px 0 0;
 }
 
 .faq-accordion__pill {

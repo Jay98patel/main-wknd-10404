@@ -139,6 +139,19 @@ function loadDelayed() {
 }
 
 async function loadPage() {
+  const { pathname } = window.location;
+  const homePath = `${window.hlx.codeBasePath}/us/en/home`;
+
+  const isRoot =
+    pathname === '/' ||
+    pathname === '/index.html' ||
+    pathname === '/index'; 
+
+  if (isRoot && pathname !== homePath) {
+    window.location.replace(homePath);
+    return; 
+  }
+
   await loadEager(document);
   await loadLazy(document);
   loadDelayed();

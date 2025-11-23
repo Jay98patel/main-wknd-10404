@@ -167,7 +167,7 @@
 
 @media (max-width: 600px) {
   .content-listing {
-    padding-inline: 1rem;
+    padding: 1rem 0;
   }
 
   .content-listing__image {

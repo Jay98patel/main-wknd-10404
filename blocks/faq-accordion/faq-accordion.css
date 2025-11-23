@@ -92,8 +92,12 @@
 }
 
 /* Responsive */
-@media (max-width: 900px) {
+@media (max-width: 899px) {
   .faq-accordion__answer {
     max-width: none;
+  }
+
+  .block.faq-accordion {
+    margin-bottom: 1.5rem;
   }
 }

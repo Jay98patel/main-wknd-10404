@@ -180,7 +180,7 @@ export default async function decorate(block) {
 
   const hamburger = document.createElement('div');
   hamburger.className = 'nav-hamburger';
-  hamburger.innerHTML = '<button type="button" aria-controls="nav" aria-label="Toggle navigation"><span class="nav-hamburger-icon"></span></button>';
+  hamburger.innerHTML = '<button type="button" aria-controls="nav" aria-label="Toggle navigation"><div class="nav-hamburger-icon"></div></button>';
   nav.append(hamburger);
 
   const brand = document.createElement('div');

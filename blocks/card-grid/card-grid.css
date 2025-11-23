@@ -149,13 +149,23 @@
 
 
 /* Responsive tweaks */
-@media (max-width: 900px) {
+@media (max-width: 1200px) {
+  .card-grid__grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 899px) {
   .block.card-grid {
-    padding-inline: 1rem;
+    padding: 1.5rem 1rem;
   }
 
   .card-grid__body {
     padding: 1rem 1.1rem 1.25rem;
+  }
+
+  .card-grid__grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 

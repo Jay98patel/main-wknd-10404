@@ -16,6 +16,7 @@
 /* Left side: image + intro text */
 .faq-intro__main {
   flex: 1 1 auto;
+  width: 100%;
 }
 
 /* Make the image behave like the WKND design */
@@ -57,13 +58,17 @@
 }
 
 /* Mobile: stack */
-@media (max-width: 900px) {
+@media (max-width: 899px) {
   .faq-intro__inner {
     flex-direction: column;
-    gap: 2rem;
+    gap: 1rem;
   }
 
   .faq-intro__aside {
     flex: 1 1 auto;
+  }
+
+  .block.faq-intro {
+    padding: 0;
   }
 }

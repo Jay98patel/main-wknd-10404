@@ -25,7 +25,7 @@
     border-bottom: 2px solid transparent;
 }
 
-.tabs__tab+.tabs__tab {
+.tabs__tab + .tabs__tab {
     margin-left: 0.35rem;
 }
 
@@ -53,7 +53,7 @@
 .tabs__panel img,
 .tabs__panel picture {
     display: block;
-    width: 100%;
+    width: 200px;
     height: auto;
 }
 
@@ -66,8 +66,13 @@
     margin-top: 0;
 }
 
+.tabs__panel p {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
 
-@media (max-width: 900px) {
+@media (max-width: 899px) {
     .tabs__list {
         display: flex;
         flex-wrap: wrap;

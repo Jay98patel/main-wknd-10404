@@ -1,121 +1,123 @@
 /* Make hero section full-bleed, no extra padding above it */
 #wknd-adventures {
-  margin: 0;
+    margin: 0;
 }
 
 .default-content-wrapper {
-  padding: 0 !important;
+    padding: 0 !important;
 }
 
 .hero-container .hero-wrapper {
-  max-width: 1680px;
-  padding: 0;
+    max-width: 1680px;
+    padding: 0;
 }
 
 /* Base hero block */
 .hero {
-  position: relative;
-  margin: 0;
-  padding: 0;
-  min-height: 420px;
-  color: #fff;
-  overflow: hidden;
+    position: relative;
+    margin: 0;
+    padding: 0;
+    min-height: 420px;
+    color: #fff;
+    overflow: hidden;
 }
 
 /* ----- Slider layout ----- */
 
 .hero__slides {
-  position: relative;
-  width: 100%;
-  height: 640px;
+    position: relative;
+    width: 100%;
+    height: 640px;
 }
 
 .hero__slide {
-  position: absolute;
-  width: 100%;
-  inset: 0;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.5s ease-in-out;
+    position: absolute;
+    width: 100%;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease-in-out;
 }
 
 .hero__slide picture {
-  width: 100%;
-  height: 100%;
-  display: block;
+    width: 100%;
+    height: 100%;
+    display: block;
 }
 
 .hero__slide img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .hero__slide--active {
-  opacity: 1;
-  pointer-events: auto;
+    opacity: 1;
+    pointer-events: auto;
 }
 
 .hero__inner {
-  position: absolute;
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  right: 10%;
-  bottom: 0;
-  left: 10%;
-  background-color: #ffffff;
-  color: #202020;
-  z-index: 999;
+    position: absolute;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    right: 10%;
+    bottom: 0;
+    left: 10%;
+    background-color: #ffffff;
+    color: #202020;
+    z-index: 999;
 }
 
 /* Background image */
 
 .hero__background picture,
 .hero__background img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 /* Darken bottom so text is readable */
 .hero__gradient {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg,
-      rgba(0, 0, 0, 0.10) 0%,
-      rgba(0, 0, 0, 0.65) 65%,
-      rgba(0, 0, 0, 0.85) 100%);
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        180deg,
+        rgba(0, 0, 0, 0.1) 0%,
+        rgba(0, 0, 0, 0.65) 65%,
+        rgba(0, 0, 0, 0.85) 100%
+    );
 }
 
 /* Content wrapper centers panel similar to wknd.site */
 .hero__content {
-  padding: 28px;
+    padding: 28px;
 }
 
 .hero__content:empty {
-  display: none;
+    display: none;
 }
 
 .hero__content-wrapper {
-  position: relative;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 140px 32px 80px;
-  display: flex;
-  align-items: flex-end;
-  height: 100%;
-  box-sizing: border-box;
+    position: relative;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 140px 32px 80px;
+    display: flex;
+    align-items: flex-end;
+    height: 100%;
+    box-sizing: border-box;
 }
 
 /* Panel with title/description/button */
 
 .hero__panel {
-  background: rgba(0, 0, 0, 0.85);
-  padding: 1.5rem 2.25rem;
-  max-width: 520px;
+    background: rgba(0, 0, 0, 0.85);
+    padding: 1.5rem 2.25rem;
+    max-width: 520px;
 }
 
 /* .hero__eyebrow {
@@ -127,115 +129,115 @@
 } */
 
 .hero__tag {
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  margin: 0 0 0.5rem;
-  color: #ffd600;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: 0 0 0.5rem;
+    color: #ffd600;
 }
 
 .hero__title {
-  margin: 0 0 0.6rem;
-  font-size: 1.8rem;
-  line-height: 1.15;
-  font-style: normal
+    margin: 0 0 0.6rem;
+    font-size: 1.8rem;
+    line-height: 1.15;
+    font-style: normal;
 }
 
 .hero__subtitle {
-  margin: 0 0 1rem;
-  font-size: 0.95rem;
-  line-height: 1.6;
+    margin: 0 0 1rem;
+    font-size: 0.95rem;
+    line-height: 1.6;
 }
 
 /* CTA button (matching WKND yellow) */
 
 .hero__cta {
-  display: inline-block;
-  padding: 0.65rem 1.6rem;
-  border-radius: 999px;
-  text-decoration: none;
-  font-size: 0.85rem;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  background: #ffd600;
-  color: #000;
+    display: inline-block;
+    padding: 0.65rem 1.6rem;
+    border-radius: 999px;
+    text-decoration: none;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    background: #ffd600;
+    color: #000;
 }
 
 /* ----- Arrows & dots ----- */
 
 .hero__nav {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  height: 40px;
-  inset: 0;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 24px;
-  position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    height: 40px;
+    inset: 0;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+    position: relative;
 }
 
 .hero__arrows {
-  display: flex;
-  align-items: center;
-  gap: 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
 }
 
 .hero__arrow {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 4px;
-  margin: 0;
-  background-color: transparent;
-  color: rgba(0, 0, 0, .8);
-  outline: none;
-  border: none;
-  height: 24px;
-  font-size: 1.8rem;
-  pointer-events: auto;
-  cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    margin: 0;
+    background-color: transparent;
+    color: rgba(0, 0, 0, 0.8);
+    outline: none;
+    border: none;
+    height: 24px;
+    font-size: 1.8rem;
+    pointer-events: auto;
+    cursor: pointer;
 }
 
 .hero__arrow:hover,
 .hero__arrow:focus,
 .hero__arrow:active {
-  background-color: transparent;
-  color: #000;
+    background-color: transparent;
+    color: #000;
 }
 
 .hero__arrow:disabled {
-  opacity: 0.5;
-  cursor: default;
+    opacity: 0.5;
+    cursor: default;
 }
 
 .hero__dots {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  display: flex;
-  gap: 8px;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    gap: 8px;
 }
 
 .hero__dot {
-  width: 8px;
-  height: 8px;
-  padding: 0;
-  border: none;
-  background-color: #afafaf;
-  border-radius: 50%;
-  cursor: pointer;
+    width: 8px;
+    height: 8px;
+    padding: 0;
+    border: none;
+    background-color: #afafaf;
+    border-radius: 50%;
+    cursor: pointer;
 }
 
 .hero__dot:hover {
-  background-color: #afafaf;
+    background-color: #afafaf;
 }
 
 .hero__dot--active,
 .hero__dot:active,
 .hero__dot:focus {
-  background: #000000;
+    background: #000000;
 }
 
 /* -------- Adventure detail layout: hero + trip summary + tabs -------- */
@@ -243,79 +245,96 @@
    another big hero image slider – we only want the title. */
 
 .hero-container.trip-summary-container .hero {
-  min-height: auto;
-  color: #000;
+    min-height: auto;
+    color: #000;
 }
 
 /* Make slides behave like normal flow, not overlapping slider */
 .hero-container.trip-summary-container .hero__slides {
-  position: static;
-  height: auto;
+    position: static;
+    height: auto;
 }
 
 /* Show only the first slide (the one that contains the H1) */
 .hero-container.trip-summary-container .hero__slide {
-  position: static;
-  opacity: 1;
-  pointer-events: auto;
+    position: static;
+    opacity: 1;
+    pointer-events: auto;
 }
 
 .hero-container.trip-summary-container .hero__slide:not(:first-child) {
-  display: none;
-  /* hide extra slides so the title is not repeated */
+    display: none;
+    /* hide extra slides so the title is not repeated */
 }
 
 /* Hide any images in this second hero – we only need the text */
 .hero-container.trip-summary-container .hero__slide picture,
 .hero-container.trip-summary-container .hero__slide img {
-  display: none;
+    display: none;
 }
 
 /* Make the title block look like the WKND detail heading */
 .hero-container.trip-summary-container .hero__inner {
-  position: static;
-  max-width: 1200px;
-  margin: 3rem auto 2rem;
-  padding: 0;
-  background: none;
+    position: static;
+    max-width: 1200px;
+    margin: 3rem auto 2rem;
+    padding: 0;
+    background: none;
 }
 
 .hero-container.trip-summary-container .hero__content {
-  padding: 0;
+    padding: 0;
 }
 
 .hero-container.trip-summary-container .hero__title {
-  font-size: 2.3rem;
-  font-weight: 400;
-  margin: 0 0 2rem;
+    font-size: 2.3rem;
+    font-weight: 400;
+    margin: 0 0 2rem;
 }
 
 /* No dots/arrows for the second hero */
 .hero-container.trip-summary-container .hero__nav {
-  display: none;
+    display: none;
 }
-
 
 /* ----- Responsive tweaks ----- */
 
 @media (max-width: 768px) {
-  .hero {
-    min-height: 360px;
-  }
+    .hero {
+        min-height: 360px;
+    }
 
-  .hero__content-wrapper {
-    padding: 110px 16px 64px;
-  }
+    .hero__content-wrapper {
+        padding: 110px 16px 64px;
+    }
 
-  .hero__panel {
-    padding: 1rem 1.25rem;
-  }
+    .hero__panel {
+        padding: 1rem 1.25rem;
+    }
 
-  .hero__title {
-    font-size: 1.4rem;
-  }
+    .hero__title {
+        font-size: 1.4rem;
+    }
 
-  .hero__subtitle {
-    font-size: 0.9rem;
-  }
+    .hero__subtitle {
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 899px) {
+    .hero-container .hero-wrapper {
+        padding: 0 !important;
+    }
+
+    .hero-container.trip-summary-container .hero__inner {
+        margin: 0;
+    }
+
+    .hero__slides {
+        height: 480px;
+    }
+
+    .hero-container.trip-summary-container .hero__title {
+        margin-bottom: 0;
+    }
 }

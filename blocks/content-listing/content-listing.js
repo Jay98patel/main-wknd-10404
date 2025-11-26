@@ -1,62 +1,111 @@
 import { el, getBlockRows, clearBlock } from '../../scripts/block-utils.js';
 
+function applyVariantDefaults(cfg) {
+  const variant = (cfg.variant || '').toLowerCase();
+  if (!variant) return cfg;
 
-function parseConfig(block) {
-  const rows = getBlockRows(block);
-  const cfg = {};
+  const isMagazine = variant.includes('magazine');
+  const isAdventure = variant.includes('adventure');
 
-  if (!rows.length) return cfg;
-
-  const headerRow = rows[0];
-  const valueRow = rows[1];
-
-  // 1) Header + value row (multi-column)
-  if (
-    headerRow
-    && valueRow
-    && headerRow.children.length === valueRow.children.length
-    && headerRow.children.length > 0
-  ) {
-    const cols = headerRow.children.length;
-
-    for (let i = 0; i < cols; i += 1) {
-      const headerText = (headerRow.children[i].textContent || '')
-        .trim()
-        .toLowerCase()
-        .replace(/\s+/g, '-')
-        .replace(/[^\w-]/g, '');
-      const valueText = (valueRow.children[i].textContent || '').trim();
-
-      if (headerText) {
-        cfg[headerText] = valueText;
-      }
-    }
+  if (!cfg['path-prefix']) {
+    if (isMagazine) cfg['path-prefix'] = '/us/en/magazine/';
+    if (isAdventure) cfg['path-prefix'] = '/us/en/adventures/';
   }
 
-  // 2) Additional rows as simple key/value pairs (2 columns)
-  if (rows.length > 2) {
-    rows.slice(2).forEach((row) => {
-      if (row.children.length < 2) return;
-
-      const key = (row.children[0].textContent || '')
-        .trim()
-        .toLowerCase()
-        .replace(/\s+/g, '-')
-        .replace(/[^\w-]/g, '');
-      const value = (row.children[1].textContent || '').trim();
-
-      if (key) {
-        cfg[key] = value;
-      }
-    });
+  if (isAdventure) {
+    if (!cfg['filter-field']) cfg['filter-field'] = 'category';
+    if (!cfg['enable-filters']) cfg['enable-filters'] = 'true';
   }
 
   return cfg;
 }
 
-/**
- * Map index item fields to card fields, with sensible fallbacks.
- */
+function slugKey(text) {
+  return (text || '')
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^\w-]/g, '');
+}
+
+function pickVariant(block, rows, cfg) {
+  let resultRows = rows;
+
+  if (rows.length) {
+    const firstRow = rows[0];
+    if (firstRow && firstRow.children.length >= 1) {
+      const raw = (firstRow.children[0].textContent || '').trim().toLowerCase();
+      const match = raw.match(/^content-listing\s*\(([^)]+)\)/);
+      if (match) {
+        cfg.variant = match[1].trim().toLowerCase();
+        resultRows = rows.slice(1);
+      }
+    }
+  }
+
+  if (!cfg.variant) {
+    const { blockName } = block.dataset || {};
+    const bn = (blockName || 'content-listing').toLowerCase();
+    const variantClass = Array.from(block.classList).find(
+      (cls) => cls.toLowerCase() !== bn && cls !== 'block',
+    );
+    if (variantClass) {
+      cfg.variant = variantClass.toLowerCase();
+    }
+  }
+
+  return resultRows;
+}
+
+function parseConfig(block) {
+  const cfg = {};
+  let rows = getBlockRows(block);
+  if (!rows.length) return cfg;
+
+  rows = pickVariant(block, rows, cfg);
+  if (!rows.length) return applyVariantDefaults(cfg);
+
+  const headerRow = rows[0];
+  const valueRow = rows[1];
+
+  const isSimpleKeyValueHeader =
+    headerRow
+    && headerRow.children.length === 2
+    && slugKey(headerRow.children[0].textContent) === 'key'
+    && slugKey(headerRow.children[1].textContent) === 'value';
+
+  let startIndex = 0;
+
+  if (
+    !isSimpleKeyValueHeader
+    && headerRow
+    && valueRow
+    && headerRow.children.length === valueRow.children.length
+    && headerRow.children.length > 0
+  ) {
+    const cols = headerRow.children.length;
+    for (let i = 0; i < cols; i += 1) {
+      const headerText = slugKey(headerRow.children[i].textContent || '');
+      const valueText = (valueRow.children[i].textContent || '').trim();
+      if (headerText) cfg[headerText] = valueText;
+    }
+    startIndex = 2;
+  } else if (isSimpleKeyValueHeader) {
+    startIndex = 1;
+  }
+
+  if (rows.length > startIndex) {
+    rows.slice(startIndex).forEach((row) => {
+      if (row.children.length < 2) return;
+      const key = slugKey(row.children[0].textContent || '');
+      const value = (row.children[1].textContent || '').trim();
+      if (key) cfg[key] = value;
+    });
+  }
+
+  return applyVariantDefaults(cfg);
+}
+
 function mapFields(item, cfg) {
   const get = (fieldKey, fallback) => {
     const fieldName = cfg[fieldKey];
@@ -78,21 +127,13 @@ function normalizePathFilter(filter) {
   if (!filter) return null;
   const trimmed = filter.trim();
   if (!trimmed) return null;
-
-  // Allow "/us/en/magazine/*" style filters
-  if (trimmed.endsWith('*')) {
-    return trimmed.slice(0, -1);
-  }
+  if (trimmed.endsWith('*')) return trimmed.slice(0, -1);
   return trimmed;
 }
 
-/**
- * Apply path filter, fixed filter-field / filter-value, sorting and limit.
- */
 function sortAndFilter(items, cfg) {
   let result = Array.isArray(items) ? items.slice() : [];
 
-  // Path Filter: support either "Path Filter" or "Path Prefix" headers
   const rawPrefix = cfg['path-prefix'] || cfg['path-filter'];
   const pathPrefix = normalizePathFilter(rawPrefix);
 
@@ -100,7 +141,6 @@ function sortAndFilter(items, cfg) {
     result = result.filter((item) => (item.path || '').startsWith(pathPrefix));
   }
 
-  // Optional fixed filter: filter-field + filter-value
   const filterField = cfg['filter-field'];
   const filterValue = cfg['filter-value'];
   if (filterField && filterValue) {
@@ -115,27 +155,26 @@ function sortAndFilter(items, cfg) {
     });
   }
 
-  // Sorting: "newest" or "title" (case-insensitive)
-  const sort = (cfg.sort || cfg['sort-by'] || '').toLowerCase();
-  if (sort === 'newest') {
+  const sortKeyRaw = (cfg.sort || cfg['sort-by'] || '').toLowerCase();
+  const sortDirRaw = (cfg['sort-direction'] || '').toLowerCase();
+  const dir = sortDirRaw === 'asc' ? 1 : -1;
+
+  if (sortKeyRaw === 'newest' || sortKeyRaw === 'publishdate' || sortKeyRaw === 'date') {
     result.sort((a, b) => {
-      const ad = a.lastModified || a['last-modified'] || a.date || '';
-      const bd = b.lastModified || b['last-modified'] || b.date || '';
-      if (bd > ad) return 1;
-      if (bd < ad) return -1;
-      return 0;
+      const ad = a.publishDate || a.lastModified || a['last-modified'] || a.date || '';
+      const bd = b.publishDate || b.lastModified || b['last-modified'] || b.date || '';
+      if (ad === bd) return 0;
+      return ad > bd ? dir : -dir;
     });
-  } else if (sort === 'title' || sort === 'name' || sort === 'alpha') {
+  } else if (sortKeyRaw === 'title' || sortKeyRaw === 'name' || sortKeyRaw === 'alpha') {
     result.sort((a, b) => {
       const at = (a.title || '').toLowerCase();
       const bt = (b.title || '').toLowerCase();
-      if (at < bt) return -1;
-      if (at > bt) return 1;
-      return 0;
+      if (at === bt) return 0;
+      return at < bt ? -1 : 1;
     });
   }
 
-  // Limit
   const limit = parseInt(cfg.limit, 10);
   if (!Number.isNaN(limit) && limit > 0) {
     result = result.slice(0, limit);
@@ -144,11 +183,6 @@ function sortAndFilter(items, cfg) {
   return result;
 }
 
-/**
- * Fetch JSON data (query-index or spreadsheet JSON).
- *
- * If you ever add `json-path` in a key/value row, it will override the default.
- */
 async function fetchJson(cfg) {
   const url = cfg['json-path'] || '/query-index.json';
   const resp = await fetch(url);
@@ -158,24 +192,20 @@ async function fetchJson(cfg) {
   return [];
 }
 
-/**
- * Render the cards grid into host.
- */
 function renderCards(host, items, cfg) {
   host.innerHTML = '';
 
   const grid = el('div', 'content-listing__grid');
 
   items.forEach((raw) => {
-    console.log(raw)
     const {
       title, summary, image, path, tag,
     } = mapFields(raw, cfg);
     if (!title && !summary && !image) return;
+
     const card = el('article', 'content-listing__card');
     const linkHref = path || '#';
 
-    // Image
     if (image) {
       const imgLink = el('a', 'content-listing__image-link');
       imgLink.href = linkHref;
@@ -189,7 +219,6 @@ function renderCards(host, items, cfg) {
       card.append(imgLink);
     }
 
-    // Body
     const body = el('div', 'content-listing__body');
 
     if (tag) {
@@ -220,9 +249,6 @@ function renderCards(host, items, cfg) {
   host.append(grid);
 }
 
-/**
- * Build filter tabs (used for Adventures categories).
- */
 function buildFilters(allItems, filterField, onChange) {
   const valueSet = new Set();
 
@@ -271,10 +297,8 @@ function buildFilters(allItems, filterField, onChange) {
     return btn;
   };
 
-  // "All"
   list.append(makeButton('__all__', 'All'));
 
-  // Category buttons
   values.forEach((value) => {
     list.append(makeButton(value, value));
   });
@@ -283,11 +307,28 @@ function buildFilters(allItems, filterField, onChange) {
   return container;
 }
 
-/**
- * Main decorate.
- */
 export default async function decorate(block) {
   const cfg = parseConfig(block);
+
+  const pathPrefix = (cfg['path-prefix'] || '').toLowerCase();
+  const isMagazinePath = pathPrefix.startsWith('/us/en/magazine');
+  const isAdventurePath = pathPrefix.startsWith('/us/en/adventures');
+
+  const hasNonVariantConfig = Object.keys(cfg).some((key) => key !== 'variant');
+  console.log('hasNonVariantConfig', hasNonVariantConfig);
+  if (
+    !cfg.variant
+    && (
+      !hasNonVariantConfig         
+      || isMagazinePath
+      || isAdventurePath        
+    )
+  ) {
+    clearBlock(block);
+    const empty = el('p', 'content-listing__empty', 'No data found.');
+    block.append(empty);
+    return;
+  }
 
   try {
     const rawData = await fetchJson(cfg);
@@ -299,7 +340,6 @@ export default async function decorate(block) {
 
     container.append(filtersHost, cardsHost);
 
-    // Optional CTA (bottom-right link)
     const ctaLabel = cfg['cta-label'];
     const ctaUrl = cfg['cta-url'];
     if (ctaLabel && ctaUrl) {
@@ -327,7 +367,6 @@ export default async function decorate(block) {
       renderCards(cardsHost, itemsToRender, cfg);
     };
 
-    // Only adventures listing uses enable-filters = true
     if (filterField && enableFilters) {
       const filtersEl = buildFilters(allItems, filterField, applyFilterAndRender);
       if (filtersEl) {
@@ -335,10 +374,9 @@ export default async function decorate(block) {
       }
     }
 
-    // Initial render (All)
     applyFilterAndRender(null);
   } catch (e) {
-    // eslint-disable-next-line no-console
     console.error('content-listing error', e);
   }
 }
+

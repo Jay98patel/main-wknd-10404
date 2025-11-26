@@ -1,4 +1,4 @@
-// blocks/faq-accordion/faq-accordion.js
+
 import {
   getBlockRows,
   getCellText,
@@ -7,120 +7,130 @@ import {
   moveChildren,
 } from '../../scripts/block-utils.js';
 
-export default function decorate(block) {
+function getFaqItemsData(block) {
   const rows = getBlockRows(block);
-  if (!rows.length) return;
+  if (!rows.length) return [];
 
-  let startIndex = 0;
-
-  // Optional first row with "faq-accordion"
-  if (
-    rows[0].children.length === 1
-    && getCellText(rows[0], 0).toLowerCase().includes('faq-accordion')
-  ) {
-    startIndex = 1;
-  }
-
-  // Header row: Question | Answer | Category | Tag
-  const headerRow = rows[startIndex];
-  const headerFirstCell = getCellText(headerRow, 0).toLowerCase();
+  const headerRow = rows[0];
+  const headerFirstCell = headerRow ? getCellText(headerRow, 0).toLowerCase() : '';
   const hasHeader =
     headerRow
     && headerRow.children.length >= 2
     && (headerFirstCell === 'question' || headerFirstCell === 'q');
 
-  const dataRows = hasHeader ? rows.slice(startIndex + 1) : rows.slice(startIndex);
+  const dataRows = hasHeader ? rows.slice(1) : rows;
+
+  return dataRows
+    .map((row) => {
+      const cells = Array.from(row.children);
+      if (!cells.length) return null;
+
+      const question = getCellText(row, 0);
+      if (!question) return null;
+
+      return {
+        question,
+        answerCell: cells[1] || null,
+        category: cells[2] ? getCellText(row, 2) : '',
+        tag: cells[3] ? getCellText(row, 3) : '',
+      };
+    })
+    .filter(Boolean);
+}
+
+function openItem(item, btn, panel, icon, animate) {
+  item.classList.add('faq-accordion__item--open');
+  btn.setAttribute('aria-expanded', 'true');
+  panel.setAttribute('aria-hidden', 'false');
+
+  if (animate) {
+    panel.style.maxHeight = `${panel.scrollHeight}px`;
+  } else {
+    panel.style.maxHeight = 'none';
+  }
+
+  icon.textContent = '–';
+}
+
+function closeItem(item, btn, panel, icon) {
+  item.classList.remove('faq-accordion__item--open');
+  btn.setAttribute('aria-expanded', 'false');
+  panel.setAttribute('aria-hidden', 'true');
+
+  const currentHeight = panel.scrollHeight;
+  panel.style.maxHeight = `${currentHeight}px`;
+  requestAnimationFrame(() => {
+    panel.style.maxHeight = '0px';
+  });
+
+  icon.textContent = '+';
+}
+
+function createFaqItem(data, index) {
+  const item = el('div', 'faq-accordion__item');
+
+  const btn = el('button', 'faq-accordion__question');
+  btn.type = 'button';
+  btn.setAttribute('aria-expanded', 'false');
+
+  const qText = el('span', 'faq-accordion__question-text', data.question);
+  const icon = el('span', 'faq-accordion__icon', '+');
+  btn.append(qText, icon);
+
+  const panel = el('div', 'faq-accordion__answer');
+  panel.setAttribute('aria-hidden', 'true');
+  panel.style.maxHeight = '0px';
+
+  if (data.answerCell) {
+    moveChildren(data.answerCell, panel);
+  }
+
+  if (data.category || data.tag) {
+    const meta = el('div', 'faq-accordion__meta');
+    if (data.category) meta.append(el('span', 'faq-accordion__pill', data.category));
+    if (data.tag) meta.append(el('span', 'faq-accordion__pill', data.tag));
+    panel.prepend(meta);
+  }
+
+  btn.addEventListener('click', () => {
+    const isOpen = item.classList.contains('faq-accordion__item--open');
+    if (isOpen) {
+      closeItem(item, btn, panel, icon);
+    } else {
+      openItem(item, btn, panel, icon, true);
+    }
+  });
+
+  item.append(btn, panel);
+
+  return { item, button: btn, panel, icon, index };
+}
+
+function buildFaqList(itemsData) {
+  const list = el('div', 'faq-accordion__list');
+  const controls = [];
+
+  itemsData.forEach((data, index) => {
+    const control = createFaqItem(data, index);
+    controls.push(control);
+    list.append(control.item);
+  });
+
+  return { list, controls };
+}
+
+export default function decorate(block) {
+  const itemsData = getFaqItemsData(block);
+  if (!itemsData.length) return;
 
   clearBlock(block);
   block.classList.add('faq-accordion');
 
-  const list = el('div', 'faq-accordion__list');
-
-  dataRows.forEach((row, index) => {
-    const cells = Array.from(row.children);
-    if (!cells.length) return;
-
-    const question = getCellText(row, 0);
-    const answerCell = cells[1] || null;
-    const category = cells[2] ? getCellText(row, 2) : '';
-    const tag = cells[3] ? getCellText(row, 3) : '';
-
-    if (!question) return;
-
-    const item = el('div', 'faq-accordion__item');
-
-    // Question button
-    const btn = el('button', 'faq-accordion__question');
-    btn.type = 'button';
-    btn.setAttribute('aria-expanded', 'false');
-
-    const qText = el('span', 'faq-accordion__question-text', question);
-    const icon = el('span', 'faq-accordion__icon', '+');
-    btn.append(qText, icon);
-
-    // Answer panel
-    const panel = el('div', 'faq-accordion__answer');
-    panel.setAttribute('aria-hidden', 'true');
-    panel.style.maxHeight = '0px'; // 🔹 collapsed by default
-
-    if (answerCell) {
-      moveChildren(answerCell, panel);
-    }
-
-    // Optional meta pills (category/tag)
-    if (category || tag) {
-      const meta = el('div', 'faq-accordion__meta');
-      if (category) {
-        meta.append(el('span', 'faq-accordion__pill', category));
-      }
-      if (tag) {
-        meta.append(el('span', 'faq-accordion__pill', tag));
-      }
-      panel.prepend(meta);
-    }
-
-    // First item open by default
-    if (index === 0) {
-      item.classList.add('faq-accordion__item--open');
-      btn.setAttribute('aria-expanded', 'true');
-      panel.setAttribute('aria-hidden', 'false');
-      panel.style.maxHeight = `${panel.scrollHeight}px`; // 🔹 expand smoothly
-      icon.textContent = '–';
-    }
-
-    btn.addEventListener('click', () => {
-      const isOpen = item.classList.contains('faq-accordion__item--open');
-
-      if (isOpen) {
-        // 🔻 close
-        item.classList.remove('faq-accordion__item--open');
-        btn.setAttribute('aria-expanded', 'false');
-        panel.setAttribute('aria-hidden', 'true');
-
-        // set current height, then animate to 0
-        const currentHeight = panel.scrollHeight;
-        panel.style.maxHeight = `${currentHeight}px`;
-        requestAnimationFrame(() => {
-          panel.style.maxHeight = '0px';
-        });
-
-        icon.textContent = '+';
-      } else {
-        // 🔺 open
-        item.classList.add('faq-accordion__item--open');
-        btn.setAttribute('aria-expanded', 'true');
-        panel.setAttribute('aria-hidden', 'false');
-
-        const targetHeight = panel.scrollHeight;
-        panel.style.maxHeight = `${targetHeight}px`;
-
-        icon.textContent = '–';
-      }
-    });
-
-    item.append(btn, panel);
-    list.append(item);
-  });
-
+  const { list, controls } = buildFaqList(itemsData);
   block.append(list);
+
+  const first = controls[0];
+  if (first) {
+    openItem(first.item, first.button, first.panel, first.icon, false);
+  }
 }
